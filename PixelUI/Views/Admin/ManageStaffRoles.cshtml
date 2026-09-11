@@ -1,0 +1,349 @@
+@model IEnumerable<PixelUI.Models.Db.User>
+
+@{
+    ViewData["Title"] = "Manage Staff Roles";
+    Layout = null;
+    var roles = (List<PixelUI.Models.Db.Role>)ViewBag.Roles;
+    var role = Context.Session.GetString("UserRole");
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="~/css/create-product.css">
+    <link rel="stylesheet" href="~/css/manage-staff-roles.css">
+      <style>
+            .modal-overlay.hidden {
+                display: none !important;
+            }
+
+            #createUserModal.modal-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.7);
+                display: none;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+            }
+
+            #createUserModal .modal-content {
+                background: #1a1a1a;
+                border: 1px solid #333;
+                border-radius: 8px;
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+                animation: slideIn 0.3s ease-out;
+            }
+
+            @@keyframes slideIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(-20px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .modal-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 20px;
+                border-bottom: 1px solid #333;
+            }
+
+            .modal-header h2 {
+                color: #fff;
+                margin: 0;
+                font-size: 20px;
+            }
+
+            .modal-close {
+                background: none;
+                border: none;
+                color: #888;
+                font-size: 28px;
+                cursor: pointer;
+                padding: 0;
+                width: 30px;
+                height: 30px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .modal-close:hover {
+                color: #fff;
+            }
+
+            .modal-form {
+                padding: 20px;
+            }
+
+            .form-control {
+                background: #222 !important;
+                border: 1px solid #444 !important;
+                color: #fff !important;
+            }
+
+            .form-control:focus {
+                background: #222 !important;
+                border-color: #7C3AED !important;
+                box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25) !important;
+                color: #fff !important;
+            }
+
+            .admin-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 30px;
+            }
+
+            .header-content h1 {
+                color: #fff;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                margin: 0 0 8px 0;
+            }
+
+            .header-content p {
+                color: #888;
+                margin: 0;
+            }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="browse-page-wrapper">
+   <aside class="sidebar">
+            <a href="/" class="sidebar-brand">PixelUI<span class="Text_Admin">Admin</span></a>
+              <ul class="nav-menu">
+
+        @* SuperAdmin เท่านั้น *@
+        @if (role == "SuperAdmin")
+        {
+            <li><i class="bi bi-person"></i><a href="/Admin/Userlist">User Management</a></li>
+            <li class="active"><i class="bi bi-sliders"></i><a href="/Admin/ManageStaffRoles">Manage Roles</a></li>
+            <li><i class="bi bi-wallet2"></i><a href="/Admin/FinancialOverview">Financial Overview</a></li>
+        }
+
+        @* Product Manager + SuperAdmin *@
+        @if (role == "SuperAdmin" || role == "Product Manager")
+        {
+            <li><i class="bi bi-plus-circle"></i><a href="/Admin/CreateProduct">Add Product</a></li>
+            <li><i class="bi bi-boxes"></i><a href="/Admin/ManageProducts">Manage Products</a></li>
+            <li><i class="bi bi-check-circle"></i><a href="/Admin/QCApprove">QC & Approve</a></li>
+        }
+
+        @* Marketing + SuperAdmin *@
+        @if (role == "SuperAdmin" || role == "Marketing")
+        {
+            <li><i class="bi bi-graph-up"></i><a href="/Admin/Analytics">Analytics</a></li>
+            <li><i class="bi bi-tag"></i><a href="/Admin/ManagePromotions">Promotions</a></li>
+        }
+
+        @* Customer Support + SuperAdmin *@
+        @if (role == "SuperAdmin" || role == "Customer Support")
+        {
+            <li><i class="bi bi-ticket"></i><a href="/Admin/Tickets">Support Tickets</a></li>
+            <li><i class="bi bi-check-circle"></i><a href="/Admin/StudentVerification">Student Verify</a></li>
+        }
+
+    </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="modal-overlay">
+                <div class="admin-container">
+                    <div class="admin-header">
+                        <div class="header-content">
+                            <h1><i class="bi bi-sliders"></i> Manage Staff Roles</h1>
+                            <p>Assign and manage roles for team members</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="openCreateModal()">
+                            <i class="bi bi-person-plus"></i> Create Staff Account
+                        </button>
+                    </div>
+                    
+                    <div class="staff-table-container">
+                        <table class="staff-table">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Current Role</th>
+                                    <th>Change Role</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var user in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            <strong>@user.Username</strong>
+                                        </td>
+                                        <td>@user.Email</td>
+                                        <td>
+                                            <span class="role-badge">@(user.Role?.RoleName ?? "No Role")</span>
+                                        </td>
+                                        <td>
+                                            <form method="post" action="/Admin/UpdateStaffRole" style="display: flex; gap: 10px; align-items: center;">
+                                                <input type="hidden" name="userId" value="@user.UserId" />
+                                                <select name="roleId" class="role-select">
+                                                    <option value="">Select Role</option>
+                                                    @foreach (var role in roles)
+                                                    {
+                                                        @if (user.RoleId == role.RoleId)
+                                                        {
+                                                            <option value="@role.RoleId" selected>@role.RoleName</option>
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="@role.RoleId">@role.RoleName</option>
+                                                        }
+                                                    }
+                                                </select>
+                                                <button type="submit" class="btn-update">
+                                                    <i class="bi bi-check"></i> Update
+                                                </button>
+                                            </form>
+                                        </td>
+                                        <td>
+                                            <div class="action-buttons">
+                                                <a href="/Admin/EditUser/@user.UserId" class="btn-edit">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                                <form method="post" action="/Admin/DeleteUser/@user.UserId" style="display: inline;">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn-delete" onclick="return confirm('Are you sure?')">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                                    <!-- Create Staff Account Modal -->
+                            <div id="createUserModal" class="modal-overlay hidden" style="display: none;">
+                                <div class="modal-content" style="width: 90%; max-width: 500px;">
+                                    <div class="modal-header">
+                                        <h2>Create New Staff Account</h2>
+                                        <button class="modal-close" onclick="closeCreateModal()">×</button>
+                                    </div>
+
+                                    <form action="/Admin/CreateUser" method="post" class="modal-form">
+                                        @Html.AntiForgeryToken()
+
+                                        <div style="margin-bottom: 20px;">
+                                            <label for="username"
+                                                   style="display: block; color: #ccc; font-weight: 600; margin-bottom: 8px;">
+                                                Username <span style="color: #ff6b6b;">*</span>
+                                            </label>
+                                            <input type="text" id="username" name="username" class="form-control" required
+                                                   style="background: #222; border: 1px solid #444; color: #fff; padding: 10px 12px;" />
+                                        </div>
+
+                                        <div style="margin-bottom: 20px;">
+                                            <label for="email"
+                                                   style="display: block; color: #ccc; font-weight: 600; margin-bottom: 8px;">
+                                                Email <span style="color: #ff6b6b;">*</span>
+                                            </label>
+                                            <input type="email" id="email" name="email" class="form-control" required
+                                                   style="background: #222; border: 1px solid #444; color: #fff; padding: 10px 12px;" />
+                                        </div>
+
+                                        <div style="margin-bottom: 20px;">
+                                            <label for="password"
+                                                   style="display: block; color: #ccc; font-weight: 600; margin-bottom: 8px;">
+                                                Password <span style="color: #ff6b6b;">*</span>
+                                            </label>
+                                            <input type="password" id="password" name="password" class="form-control" required
+                                                   style="background: #222; border: 1px solid #444; color: #fff; padding: 10px 12px;" />
+                                        </div>
+
+                                        <div style="margin-bottom: 20px;">
+                                            <label for="roleId"
+                                                   style="display: block; color: #ccc; font-weight: 600; margin-bottom: 8px;">
+                                                Assign Role <span style="color: #ff6b6b;">*</span>
+                                            </label>
+                                            <select id="roleId" name="roleId" class="form-control" required
+                                                    style="background: #222; border: 1px solid #444; color: #fff; padding: 10px 12px; cursor: pointer;">
+                                                <option value="">-- Select Role --</option>
+                                                @{
+                                                    var roles = ViewBag.Roles as List<Role>;
+                                                    @if (ViewBag.Roles != null)
+                                                    {
+                                                        foreach (var role in ViewBag.Roles)
+                                                        {
+                                                            <option value="@role.RoleId">@role.RoleName</option>
+                                                        }
+                                                    }
+                                                }
+                                            </select>
+                                        </div>
+
+                                        <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 30px;">
+                                            <button type="button" class="btn btn-secondary" onclick="closeCreateModal()"
+                                                    style="padding: 10px 20px; background: #444; color: #fff; border: none; cursor: pointer; border-radius: 4px;">
+                                                Cancel
+                                            </button>
+                                            <button type="submit" class="btn btn-primary"
+                                                    style="padding: 10px 20px; background: #7C3AED; color: #fff; border: none; cursor: pointer; border-radius: 4px;">
+                                                <i class="bi bi-check-circle"></i> Create Account
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+            </div>
+        </main>
+    </div>
+
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+                        function openCreateModal() {
+                            document.getElementById('createUserModal').style.display = 'flex';
+                            document.getElementById('createUserModal').classList.remove('hidden');
+                        }
+
+                        function closeCreateModal() {
+                            document.getElementById('createUserModal').style.display = 'none';
+                            document.getElementById('createUserModal').classList.add('hidden');
+                        }
+
+                        // Close modal when clicking outside of it
+                        window.onclick = function (event) {
+                            const modal = document.getElementById('createUserModal');
+                            if (event.target === modal) {
+                                closeCreateModal();
+                            }
+                        }
+                </script>
+
+</body>
+
+</html>

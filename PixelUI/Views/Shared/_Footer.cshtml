@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+            /* การตั้งค่าพื้นฐานสำหรับ Footer */
+            .main-footer {
+                background-color: #000000;
+                /* สีดำสนิทตามรูป */
+                color: #ababab;
+                /* สีตัวอักษรเทาอ่อน */
+                font-family: 'Inter', sans-serif;
+                /* แนะนำให้ใช้ Font แนวนี้ */
+                padding-top: 60px;
+                font-size: 14px;
+                border-top: 1px solid #222;
+                /* เส้นขอบบนบางๆ */
+            }
+
+            /* Container จัดกลาง */
+            .footer-container {
+                max-width: 1280px;
+                margin: 0 auto;
+                padding: 0 20px;
+                display: flex;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                /* รองรับ Responsive */
+            }
+
+            /* --- ส่วนแบรนด์ด้านซ้าย --- */
+            .footer-brand-section {
+                flex: 1;
+                min-width: 300px;
+                margin-bottom: 40px;
+                padding-right: 40px;
+            }
+
+            .footer-logo {
+                font-size: 24px;
+                font-weight: 800;
+                color: #fff;
+                text-transform: lowercase;
+                margin-bottom: 10px;
+                display: flex;
+                align-items: center;
+            }
+
+            /* สไตล์โลโก้ 'ui' สีม่วง */
+            .u-logo {
+                background-color: #7827e6;
+                /* สีม่วง */
+                color: #fff;
+                padding: 2px 6px;
+                border-radius: 4px;
+                margin-right: 2px;
+                font-weight: 800;
+            }
+
+            .footer-tagline {
+                margin-bottom: 20px;
+                color: #888;
+            }
+
+            /* ส่วน License */
+            .footer-license {
+                margin-bottom: 25px;
+                line-height: 1.6;
+            }
+
+            .footer-license i {
+                color: #888;
+                margin-right: 5px;
+            }
+
+            .footer-license strong {
+                color: #fff;
+            }
+
+            .footer-license p {
+                margin-top: 5px;
+                color: #888;
+                font-size: 13px;
+            }
+
+            /* ไอคอนโซเชียล */
+            .footer-socials {
+                display: flex;
+                gap: 18px;
+            }
+
+            .footer-socials a {
+                color: #888;
+                font-size: 18px;
+                transition: color 0.2s;
+            }
+
+            .footer-socials a:hover {
+                color: #fff;
+                /* เปลี่ยนเป็นสีขาวเมื่อชี้ */
+            }
+
+            /* --- ส่วนลิงก์ด้านขวา --- */
+            .footer-links-section {
+                flex: 2;
+                display: flex;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                gap: 30px;
+            }
+
+            .footer-link-col {
+                min-width: 120px;
+            }
+
+            /* หัวข้อคอลัมน์ */
+            .footer-link-col h4 {
+                color: #fff;
+                font-weight: 600;
+                margin-bottom: 20px;
+                font-size: 15px;
+            }
+
+            .footer-link-col ul {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+
+            .footer-link-col ul li {
+                margin-bottom: 12px;
+            }
+
+            /* สไตล์ลิงก์ */
+            .footer-link-col ul li a {
+                text-decoration: none;
+                color: #ababab;
+                transition: color 0.2s;
+            }
+
+            .footer-link-col ul li a:hover {
+                color: #fff;
+                /* เปลี่ยนเป็นสีขาวเมื่อชี้ */
+                text-decoration: underline;
+                /* เพิ่มเส้นใต้เมื่อชี้ */
+            }
+
+            /* --- ส่วนล่างสุด Copyright --- */
+            .footer-bottom {
+                margin-top: 40px;
+                padding: 20px 0;
+                border-top: 1px solid #1a1a1a;
+                /* เส้นคั่น */
+                font-size: 12px;
+                color: #666;
+            }
+
+            .footer-bottom .footer-container {
+                justify-content: flex-start;
+                /* จัดซ้าย */
+            }
+
+            /* --- Responsive สำหรับมือถือ --- */
+            @@media (max-width: 768px) {
+                .footer-container {
+                    flex-direction: column;
+                }
+
+                .footer-brand-section {
+                    padding-right: 0;
+                }
+
+                .footer-links-section {
+                    flex-direction: row;
+                    gap: 20px;
+                }
+
+                .footer-link-col {
+                    flex: 1 1 40%;
+                    /* แสดง 2 คอลัมน์ต่อแถวบนมือถือ */
+                }
+            }
+    </style>
+</head>
+
+<body>
+
+        <main role="main">
+        @RenderBody()
+    </main>
+
+    
+
+</body>
+
+</html>

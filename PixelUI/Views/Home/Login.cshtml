@@ -1,0 +1,84 @@
+@model LoginViewModel
+
+@{
+    ViewData["Title"] = "Sign In";
+    Layout = "_Layout";
+}
+
+<link rel="stylesheet" href="~/css/auth.css" />
+
+<div class="auth-container">
+    <div class="auth-box">
+        <div class="auth-header">
+            <h1>Welcome Back</h1>
+            <p>Sign in to your PixelUI account</p>
+        </div>
+
+        <form method="post" class="auth-form">
+            @Html.AntiForgeryToken()
+
+            <div class="form-group">
+                <label for="Email" class="form-label">
+                    <i class="bi bi-envelope" style="color: #7C3AED;"></i> Email Address
+                </label>
+                <input type="email" id="Email" name="Email" class="form-control" 
+                       placeholder="you@example.com" required 
+                       value="@Model?.Email" />
+                <span class="text-danger">@Html.ValidationMessage("Email")</span>
+            </div>
+
+            <div class="form-group">
+                <label for="Password" class="form-label">
+                    <i class="bi bi-lock" style="color: #7C3AED;"></i> Password
+                </label>
+                <input type="password" id="Password" name="Password" class="form-control" 
+                       placeholder="Enter your password" required />
+                <span class="text-danger">@Html.ValidationMessage("Password")</span>
+            </div>
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="text-danger mb-3">
+                    @Html.ValidationSummary(false, "")
+                </div>
+            }
+
+            <div class="form-check">
+                <input type="checkbox" id="RememberMe" name="RememberMe" class="form-check-input" />
+                <label for="RememberMe" class="form-check-label">
+                    Remember me for 30 days
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-box-arrow-in-right"></i> Sign In
+            </button>
+        </form>
+
+        <div class="auth-divider">
+            <span>New to PixelUI?</span>
+        </div>
+
+        <a href="@Url.Action("Register", "Home")" class="btn btn-outline-secondary">
+            <i class="bi bi-person-plus"></i> Create Account
+        </a>
+
+        <div class="auth-footer">
+            <a href="@Url.Action("ForgotPassword", "Home")">Forgot your password?</a>
+            <span>•</span>
+            <a href="@Url.Action("Index", "Home")">Back to Home</a>
+        </div>
+    </div>
+
+    <div class="auth-side">
+        <div class="auth-side-content">
+            <h2>Ready to Build Amazing UIs?</h2>
+            <p>Access premium designs, code snippets, and build stunning interfaces with PixelUI.</p>
+            <ul>
+                <li><i class="bi bi-check-circle-fill"></i> Unlimited Design Access</li>
+                <li><i class="bi bi-check-circle-fill"></i> Full Source Code</li>
+                <li><i class="bi bi-check-circle-fill"></i> Browser Compatible</li>
+            </ul>
+        </div>
+    </div>
+</div>

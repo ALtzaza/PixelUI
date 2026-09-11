@@ -1,0 +1,425 @@
+@model IEnumerable<PixelUI.Models.Db.Product>
+
+@{
+    Layout = null; // ปิด Layout หลักเพื่อคุมดีไซน์เองทั้งหมด 100%
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - PixelUI</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+    <style>
+            :root {
+                --bg-black: #000;
+                --sidebar-width: 260px;
+                --accent-purple: #7C3AED;
+                --border-color: #1a1a1a;
+                --text-muted: #888;
+            }
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: 'Inter', sans-serif;
+                background-color: var(--bg-black);
+                color: white;
+                overflow-x: hidden;
+            }
+
+            /* --- Layout Structure --- */
+            .browse-page-wrapper {
+                display: flex;
+                min-height: 100vh;
+                width: 100%;
+            }
+
+            /* --- Sidebar Style --- */
+            .sidebar {
+                width: var(--sidebar-width);
+                min-width: var(--sidebar-width);
+                height: 100vh;
+                border-right: 1px solid var(--border-color);
+                position: sticky;
+                top: 0;
+                padding: 40px 20px;
+                display: flex;
+                flex-direction: column;
+                background: #000;
+            }
+
+            .sidebar-brand {
+                font-size: 24px;
+                font-weight: 1000;
+                color: #fff;
+                text-decoration: none;
+                display: block;
+                margin-bottom: 40px;
+            }
+
+            .sidebar-brand span {
+                color: var(--accent-purple);
+            }
+
+            /* 1. จัดการตัวรายการ (li) ให้เป็นแค่ถังรองรับ */
+            .nav-menu li {
+                list-style: none;
+                margin-bottom: 5px;
+                transition: 0.2s;
+                display: flex;
+                /* ให้ li ยืดหยุ่น */
+            }
+
+            .nav-menu li:hover {
+                background: rgba(124, 58, 237, 0.15);
+                color: white;
+                padding-left: 25px;
+                border-radius: 10px;
+            }
+
+            .nav-menu li.active {
+                background: rgba(124, 58, 237, 0.25);
+                color: #fff;
+                border-radius: 10px;
+                border-left: 3px solid #7C3AED;
+                padding-left: 12px;
+            }
+
+            /* 2. จัดการตัวลิงก์ (a) ให้เป็นคนแสดงผลหลัก */
+            .nav-menu li a {
+                color: var(--text-muted) !important;
+                /* บังคับใช้สีเทา */
+                text-decoration: none !important;
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                font-size: 15px;
+                padding: 12px 15px;
+                width: 100%;
+                border-radius: 10px;
+                transition: 0.2s;
+            }
+
+            /* 3. เมื่อ Hover หรือ Active ให้เปลี่ยนที่ตัว a ตรงๆ */
+            .nav-menu li:hover a,
+            .nav-menu li.active a {
+                color: #fff !important;
+            }
+
+            /* 4. แถม: ปรับไอคอนให้สีตามตัวหนังสือ */
+            .nav-menu li a i {
+                font-size: 18px;
+            }
+
+            /* --- Main Content Style --- */
+            .main-content {
+                flex: 1;
+                padding: 60px 80px;
+                background: ;
+            }
+
+            .content-header {
+                margin-bottom: 50px;
+            }
+
+            .content-header h1 {
+                font-size: 3.5rem;
+                font-weight: 900;
+                letter-spacing: -2px;
+                margin-bottom: 10px;
+            }
+
+            .content-header p {
+                color: var(--text-muted);
+                font-size: 1.1rem;
+            }
+
+            /* Filter Row & Search */
+            .filter-controls {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-top: 40px;
+            }
+
+            .search-bar {
+                background: #111;
+                border: 1px solid #222;
+                padding: 12px 20px;
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                width: 400px;
+            }
+
+            .search-bar input {
+                background: none;
+                border: none;
+                color: #fff;
+                margin-left: 12px;
+                width: 100%;
+                outline: none;
+            }
+
+            /* Grid System */
+            .ui-components-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+                gap: 40px;
+                margin-top: 20px;
+            }
+
+            /* Component Card */
+            .ui-card {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .ui-display {
+                aspect-ratio: 16/10;
+                background: #111;
+                border: 1px solid #222;
+                border-radius: 16px;
+                position: relative;
+                overflow: hidden;
+                transition: 0.3s;
+            }
+
+            .ui-card:hover .ui-display {
+                border-color: #444;
+                transform: translateY(-5px);
+            }
+
+            .preview-iframe {
+                width: 100%;
+                height: 100%;
+                border: none;
+                pointer-events: none;
+            }
+
+            .btn-get-code {
+                position: absolute;
+                bottom: 15px;
+                right: 15px;
+                background: rgba(0, 0, 0, 0.8);
+                color: #fff;
+                padding: 8px 16px;
+                border-radius: 8px;
+                font-size: 12px;
+                text-decoration: none;
+                border: 1px solid #333;
+                opacity: 0;
+                transition: 0.3s;
+            }
+
+            .ui-card:hover .btn-get-code {
+                opacity: 1;
+            }
+
+            /* Card Info */
+            .ui-info {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 15px 5px;
+            }
+
+            .author-box {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .avatar {
+                width: 24px;
+                height: 24px;
+                border-radius: 6px;
+                background: var(--accent-purple);
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 12px;
+                font-weight: bold;
+            }
+
+            .stats {
+                color: #555;
+                font-size: 12px;
+            }
+
+            .stats i {
+                margin-right: 4px;
+            }
+    </style>
+</head>
+
+<body>
+
+    <div class="browse-page-wrapper">
+        <aside class="sidebar">
+            <a href="/" class="sidebar-brand">Pixel<span>UI</span>
+            </a>
+            <ul class="nav-menu">
+                <li class="@(string.IsNullOrEmpty(Context.Request.Query["category"]) ? "active" : "")">
+                    <a asp-controller="Product" asp-action="Browse" class="text-decoration-none">
+                        <i class="bi bi-grid-fill"></i> All
+                    </a>
+                </li>
+
+                <li class="@(Context.Request.Query["category"] == "Buttons" ? "active" : "")">
+                    <a asp-controller="Product" asp-action="Browse" asp-route-category="Buttons"
+                           class="text-decoration-none">
+                        <i class="bi bi-mouse3"></i> Buttons
+                    </a>
+                </li>
+
+                <li class="@(Context.Request.Query["category"] == "ToggleSwitch" ? "active" : "")">
+                    <a asp-controller="Product" asp-action="Browse" asp-route-category="ToggleSwitch"
+                           class="text-decoration-none">
+                        <i class="bi bi-arrow-left-right"></i> ToggleSwitch
+                    </a>
+                </li>
+
+                <li class="@(Context.Request.Query["category"] == "Loaders" ? "active" : "")">
+                    <a asp-controller="Product" asp-action="Browse" asp-route-category="Loaders"
+                           class="text-decoration-none">
+                        <i class="bi bi-arrow-repeat"></i> Loaders
+                    </a>
+                </li>
+
+                <li class="@(Context.Request.Query["category"] == "Checkbox" ? "active" : "")">
+                    <a asp-controller="Product" asp-action="Browse" asp-route-category="Checkbox"
+                           class="text-decoration-none">
+                        <i class="bi bi-check2-square"></i> Checkbox
+                    </a>
+                </li>
+
+                <li class="@(Context.Request.Query["category"] == "Card" ? "active" : "")">
+                    <a asp-controller="Product" asp-action="Browse" asp-route-category="Card"
+                           class="text-decoration-none">
+                        <i class="bi bi-card-text"></i> Card
+                    </a>
+                </li>
+
+                <li class="@(Context.Request.Query["category"] == "Input" ? "active" : "")">
+                    <a asp-controller="Product" asp-action="Browse" asp-route-category="Input"
+                           class="text-decoration-none">
+                        <i class="bi bi-input-cursor-text"></i> Input
+                    </a>
+                </li>
+
+                <li class="@(Context.Request.Query["category"] == "RadioButton" ? "active" : "")">
+                    <a asp-controller="Product" asp-action="Browse" asp-route-category="RadioButton"
+                           class="text-decoration-none">
+                        <i class="bi bi-record-circle"></i> Radio Button
+                    </a>
+                </li>
+
+                <li class="@(Context.Request.Query["category"] == "Form" ? "active" : "")">
+                    <a asp-controller="Product" asp-action="Browse" asp-route-category="Form"
+                           class="text-decoration-none">
+                        <i class="bi bi-journal-text"></i> Form
+                    </a>
+                </li>
+
+                
+                <li class="@(Context.Request.Query["category"] == "Tooltips" ? "active" : "")">
+                    <a asp-controller="Product" asp-action="Browse" asp-route-category="Tooltips"
+                           class="text-decoration-none">
+                        <i class="bi bi-question-circle"></i> Tooltips
+                    </a>
+                </li>
+
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <header class="content-header">
+                <h1 class="title">@ViewBag.Title</h1>
+                <p class="subtitle">Open-Source UI elements made with CSS or Tailwind</p>
+
+                <div class="filter-controls">
+                    <div style="color: #444; font-size: 14px; font-weight: 600;">
+                        #neumorphism &nbsp; #3d &nbsp; #gradient
+                    </div>
+                    <div class="search-bar">
+                        <i class="bi bi-search" style="color: #555;"></i>
+                        <input type="text" id="searchInput" placeholder="Search components...">
+                    </div>
+                </div>
+            </header>
+
+            <div class="ui-components-grid" id="componentGrid">
+                @foreach (var item in Model)
+                {
+                    <div class="ui-card" data-name="@(item.ProductName?.ToLower() ?? "")">
+                        <div class="ui-display">
+                            @{
+                                var scopedHtml = $@"
+                                <html>
+                                <head>
+                                    <style>
+                                        body {{ margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh;                  background: transparent; overflow: hidden; }}
+                                        {item.CssCode}
+                                    </style>
+                                </head>
+                                <body>{item.HtmlCode}</body>
+                                </html>";
+                            }
+                            <iframe srcdoc="@scopedHtml" class="preview-iframe"></iframe>
+                            <a asp-action="Detail" asp-route-id="@item.ProductId" class="btn-get-code">
+                                <i class="bi bi-code-slash"></i> Get code
+                            </a>
+                        </div>
+                        <div class="ui-info">
+                            <div style="display: flex; flex-direction: column; width: 100%; gap: 8px;">
+                                <div class="user-info">
+                                    <img src="https://ui-avatars.com/api/?name=@(item.Author ?? "AqFox")&background=random"
+                                         style="width: 30px; height: 30px; border-radius: 50%; object-fit: cover;">
+                                    <strong class="text-white ms-1">@(item.Author ?? "AqFox")</strong>
+                                </div>
+                                <div class="component-views"
+                                     style="margin-top: 0; font-size: 0.85rem; color: #888; display: flex; align-items: center; gap: 6px;">
+                                    <i class="bi bi-eye"></i>
+                                    <span>@(item.ViewCount > 0 ? (item.ViewCount > 999 ? $"{item.ViewCount / 1000}K" :
+                                                                                                                                                                                                    item.ViewCount.ToString()) : "0") views</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </main>
+        </div>
+
+        <script>
+                // ระบบค้นหาแบบ Real-time
+                document.getElementById('searchInput').addEventListener('input', function (e) {
+                    const term = e.target.value.toLowerCase();
+                    const cards = document.querySelectorAll('.ui-card');
+
+                    cards.forEach(card => {
+                        const name = card.getAttribute('data-name');
+                        if (name.includes(term)) {
+                            card.style.display = 'flex';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                });
+        </script>
+
+    </body>
+
+</html>

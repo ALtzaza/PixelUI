@@ -1,0 +1,462 @@
+@model PixelUI.Models.Db.Product
+
+@{
+    ViewData["Title"] = "Create New Element";
+    Layout = null;
+    var role = Context.Session.GetString("UserRole");
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="~/css/create-product.css">
+    <link rel="stylesheet" href="~/css/detail-page.css">
+    
+</head>
+
+<body>
+
+    <div class="browse-page-wrapper">
+        <aside class="sidebar">
+            <a href="/" class="sidebar-brand">PixelUI<span class="Text_Admin">Admin</span></a>
+            <ul class="nav-menu">
+
+        @* SuperAdmin เท่านั้น *@
+        @if (role == "SuperAdmin")
+        {
+            <li><i class="bi bi-person"></i><a href="/Admin/Userlist">User Management</a></li>
+            <li><i class="bi bi-sliders"></i><a href="/Admin/ManageStaffRoles">Manage Roles</a></li>
+            <li><i class="bi bi-wallet2"></i><a href="/Admin/FinancialOverview">Financial Overview</a></li>
+        }
+
+        @* Product Manager + SuperAdmin *@
+        @if (role == "SuperAdmin" || role == "Product Manager")
+        {
+            <li class="active"><i class="bi bi-plus-circle"></i><a href="/Admin/CreateProduct">Add Product</a></li>
+            <li><i class="bi bi-boxes"></i><a href="/Admin/ManageProducts">Manage Products</a></li>
+            <li><i class="bi bi-check-circle"></i><a href="/Admin/QCApprove">QC & Approve</a></li>
+        }
+
+        @* Marketing + SuperAdmin *@
+        @if (role == "SuperAdmin" || role == "Marketing")
+        {
+            <li><i class="bi bi-graph-up"></i><a href="/Admin/Analytics">Analytics</a></li>
+            <li><i class="bi bi-tag"></i><a href="/Admin/ManagePromotions">Promotions</a></li>
+        }
+
+        @* Customer Support + SuperAdmin *@
+        @if (role == "SuperAdmin" || role == "Customer Support")
+        {
+            <li><i class="bi bi-ticket"></i><a href="/Admin/Tickets">Support Tickets</a></li>
+            <li><i class="bi bi-check-circle"></i><a href="/Admin/StudentVerification">Student Verify</a></li>
+        }
+
+    </ul>
+        </aside>
+
+                    <main class="main-content">
+                        <div class="modal-overlay" id="categoryModal">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h2>What are you making?</h2>
+                                    <button class="modal-close" onclick="cancelSelection();">×</button>
+                                </div>
+
+                                <div class="category-grid">
+                                    <div class="category-item" data-category="Buttons">
+                                        <div class="category-icon">🔘</div>
+                                        <div class="category-label">Button</div>
+                                    </div>
+                                    <div class="category-item" data-category="ToggleSwitch">
+                                        <div class="category-icon">⚪</div>
+                                        <div class="category-label">Toggle switch</div>
+                                    </div>
+                                    <div class="category-item" data-category="Checkbox">
+                                        <div class="category-icon">✓</div>
+                                        <div class="category-label">Checkbox</div>
+                                    </div>
+                                    <div class="category-item" data-category="Card">
+                                        <div class="category-icon">📋</div>
+                                        <div class="category-label">Card</div>
+                                    </div>
+                                    <div class="category-item" data-category="Loaders">
+                                        <div class="category-icon">⏳</div>
+                                        <div class="category-label">Loader</div>
+                                    </div>
+                                    <div class="category-item" data-category="Input">
+                                        <div class="category-icon">📝</div>
+                                        <div class="category-label">Input</div>
+                                    </div>
+                                    <div class="category-item" data-category="Form">
+                                        <div class="category-icon">≡</div>
+                                        <div class="category-label">Form</div>
+                                    </div>
+                                    <div class="category-item" data-category="Pattern">
+                                        <div class="category-icon">≣≣</div>
+                                        <div class="category-label">Pattern</div>
+                                    </div>
+                                    <div class="category-item" data-category="RadioButton">
+                                        <div class="category-icon">⦿</div>
+                                        <div class="category-label">Radio Button</div>
+                                    </div>
+
+                                    <div class="category-item" data-category="Tooltips">
+                                        <div class="category-icon">❔</div>
+                                        <div class="category-label">Tooltips</div>
+                                    </div>
+
+                        
+                                </div>
+
+                                <div class="technology-section">
+                                    <label>Technology</label>
+                                    <div class="technology-buttons">
+                                        <button type="button" class="tech-btn selected" data-tech="CSS">CSS</button>
+                                        <button type="button" class="tech-btn" data-tech="TailwindCSS">Tailwind CSS</button>
+                                    </div>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button type="button" class="btn-secondary" onclick="cancelSelection();">Cancel</button>
+                                    <button type="button" class="btn-create" onclick="proceedToForm();">Continue</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Section -->
+                        <form asp-controller="Admin" asp-action="CreateProduct" method="post" class="form-section" id="productForm"
+                              onsubmit="validateForm(event)">
+                            @Html.AntiForgeryToken()
+                
+                            <div class="product-detail-container">
+                                <!-- Back Navigation -->
+                                <div class="top-nav d-flex justify-content-between align-items-center mb-3">
+                                    <div></div>
+                                    <button type="submit" class="submit-btn">
+                                        <i class="bi bi-check-circle"></i> Submit
+                                    </button>
+                                </div>
+
+                                <!-- Product Info Card -->
+                                <div class="product-info-card mb-4">
+                                    <div class="product-header">
+                                        <div>
+                                            <input asp-for="ProductName" class="product-name-input" placeholder="Component Name" />
+                                            <input asp-for="Category" type="hidden" />
+                                            <div class="product-category-display" id="categoryDisplay">Select Category</div>
+                                        </div>
+                                        <div class="product-price">
+                                            <span class="price-label">Price (USD)</span>
+                                            <input asp-for="BasePrice" type="number" step="0.01" placeholder="0.00"
+                                                   class="price-input" />
+                                        </div>
+                                    </div>
+
+                                    <div class="product-specs">
+                                        <div class="spec-item">
+                                            <i class="bi bi-code-slash"></i>
+                                            <div>
+                                                <strong>Tech Stack</strong>
+                                                <select asp-for="TechStack" class="spec-input">
+                                       
+                                                    <option value="HTML & CSS">HTML & CSS</option>
+                                                    <option value="HTML & CSS & JavaScript">HTML & CSS & JavaScript</option>
+                                                    <option value="React">React</option>
+                                                    <option value="Vue">Vue</option>
+                                                    <option value="Angular">Angular</option>
+                                                    <option value="Tailwind CSS">Tailwind CSS</option>
+                                                    <option value="Bootstrap">Bootstrap</option>
+                                                    <option value="Next.js">Next.js</option>
+                                                    <option value="Svelte">Svelte</option>
+                                                    <option value="TypeScript">TypeScript</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="spec-item">
+                                            <i class="bi bi-bar-chart"></i>
+                                            <div>
+                                                <strong>Complexity</strong>
+                                                <input asp-for="ComplexityTier" type="range" min="1" max="5"
+                                                       class="complexity-slider" />
+                                            </div>
+                                        </div>
+
+                                        <div class="spec-item">
+                                            <i class="bi bi-person-circle"></i>
+                                            <div>
+                                                <strong>Author</strong>
+                                                <div class="spec-input-display" style="padding: 8px 12px; font-weight: bold; ">
+                                                    @{
+                                                        var authorName = Context.Session.GetString("Username") ?? "Unknown";
+                                                    }
+                                                    <span>@authorName</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Workspace -->
+                                <div class="workspace">
+                                    <!-- Preview Side -->
+                                    <div class="preview-side" id="previewContainer">
+                                        <div class="preview-tools">
+                                            <span class="color-code">#000000</span>
+                                        </div>
+                                        <div id="preview-content" class="preview-content">
+                                            <!-- Preview will render here -->
+                                        </div>
+                                    </div>
+
+                                    <!-- Code Side -->
+                                    <div class="code-side">
+                                        <div class="code-tabs">
+                                            <div class="btn-group">
+                                                <button type="button" class="tab-btn active"
+                                                        onclick="openTab(event, 'html-section')">
+                                                    <i class="bi bi-filetype-html text-danger"></i> HTML
+                                                </button>
+                                                <button type="button" class="tab-btn" onclick="openTab(event, 'css-section')">
+                                                    <i class="bi bi-filetype-css text-primary"></i> CSS
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- HTML Code Section -->
+                                        <div id="html-section" class="tab-content show">
+                                            <textarea asp-for="HtmlCode" class="code-editor" placeholder="<button>Click me</button>"
+                                                      id="htmlEditor"></textarea>
+                                        </div>
+
+                                        <!-- CSS Code Section -->
+                                        <div id="css-section" class="tab-content">
+                                            <textarea asp-for="CssCode" class="code-editor"
+                                                      placeholder="button { background: #7C3AED; }" id="cssEditor"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Product Description Section -->
+                                <!-- Description Edit Section -->
+                                <div class="product-description-edit mt-5">
+
+                                    <div class="desc-grid">
+
+                                        <!-- LEFT -->
+                                        <div class="desc-left">
+                                            <h3>Overview</h3>
+
+                                            <textarea asp-for="Description" class="form-control dark-input" rows="5"
+                                                      placeholder="Write product overview..."></textarea>
+
+                                            <h5 class="mt-4">What's Included</h5>
+
+                                            <textarea asp-for="IncludedItems" class="form-control dark-input" rows="5" placeholder="Example:
+                                            - Responsive Design
+                                            - Clean Code
+                                            - Easy to Customize"></textarea>
+                                        </div>
+
+                                        <!-- RIGHT -->
+                                        <div class="desc-right-card">
+                                            <h3>Highlights</h3>
+
+                                            <textarea asp-for="Highlights" class="form-control dark-input" rows="6" placeholder="Example:
+                                            - High Quality UI
+                                            - Ready to Use
+                                            - Lightweight"></textarea>
+
+                                            <div class="format-box mt-4">
+                                                <h5>Format</h5>
+                                                <input asp-for="Format" class="form-control dark-input"
+                                                       placeholder="HTML / CSS / React" />
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+                        </form>
+                    </main>
+                </div>
+
+                <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+                <script>
+                    let selectedCategory = null;
+                    let selectedTech = 'CSS';
+
+                    // Category label mapping
+                    const categoryLabels = {
+                    'Buttons': 'Button',
+                    'ToggleSwitch': 'Toggle Switch',
+                    'Checkbox': 'Checkbox',
+                    'Card': 'Card',
+                    'Loaders': 'Loader',
+                    'Input': 'Input',
+                    'Form': 'Form',
+                    'Pattern': 'Pattern'
+                    };
+
+                    document.addEventListener('DOMContentLoaded', function () {
+                    // Category selection
+                    document.querySelectorAll('.category-item').forEach(item => {
+                    item.addEventListener('click', function () {
+                    document.querySelectorAll('.category-item').forEach(el => {
+                    el.classList.remove('selected');
+                    });
+                    this.classList.add('selected');
+                    selectedCategory = this.dataset.category;
+                    });
+                    });
+
+                    // Technology selection
+                    document.querySelectorAll('.tech-btn').forEach(btn => {
+                    btn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelectorAll('.tech-btn').forEach(el => {
+                    el.classList.remove('selected');
+                    });
+                    this.classList.add('selected');
+                    selectedTech = this.dataset.tech;
+                    });
+                    });
+
+                    // Live preview code update
+                    const htmlEditor = document.getElementById('htmlEditor');
+                    const cssEditor = document.getElementById('cssEditor');
+            
+                    if (htmlEditor) {
+                    htmlEditor.addEventListener('input', updatePreview);
+                    }
+                    if (cssEditor) {
+                    cssEditor.addEventListener('input', updatePreview);
+                    }
+                    });
+
+                    function proceedToForm() {
+                    if (!selectedCategory) {
+                    alert('Please select a category');
+                    return;
+                    }
+            
+                    // Hide modal and show form
+                    document.getElementById('categoryModal').classList.add('hidden');
+                    document.getElementById('productForm').classList.add('visible');
+            
+                    // Set category value in hidden input
+                    document.querySelector('input[name="Category"]').value = selectedCategory;
+            
+                    // Display selected category with icon
+                    const categoryLabel = categoryLabels[selectedCategory] || selectedCategory;
+                    const categoryIcons = {
+                    'Buttons': '🔘',
+                    'ToggleSwitch': '⚪',
+                    'Checkbox': '✓',
+                    'Card': '📋',
+                    'Loaders': '⏳',
+                    'Input': '📝',
+                    'Form': '≡',
+                    'Pattern': '≣'
+                    };
+                    const icon = categoryIcons[selectedCategory] || '';
+            
+                    document.getElementById('categoryDisplay').textContent = `${icon} ${categoryLabel}`;
+            
+                    // Scroll to top of form
+                    setTimeout(() => {
+                    document.querySelector('.product-detail-container').scrollIntoView({ behavior: 'smooth' });
+                    }, 100);
+                    }
+
+                    function backToCategory() {
+                    // Show modal and hide form
+                    document.getElementById('categoryModal').classList.remove('hidden');
+                    document.getElementById('productForm').classList.remove('visible');
+                    }
+
+                    function cancelSelection() {
+                    window.location.href = '/Admin/Userlist';
+                    }
+
+                    function openTab(evt, tabName) {
+                    evt.preventDefault();
+            
+                    // Hide all tab contents
+                    document.querySelectorAll('.tab-content').forEach(el => {
+                    el.classList.remove('show');
+                    });
+            
+                    // Remove active class from all buttons
+                    document.querySelectorAll('.tab-btn').forEach(el => {
+                    el.classList.remove('active');
+                    });
+            
+                    // Show the current tab and mark the button as active
+                    document.getElementById(tabName).classList.add('show');
+                    evt.currentTarget.classList.add('active');
+                    }
+
+                    function updatePreview() {
+                    const htmlCode = document.getElementById('htmlEditor').value;
+                    const cssCode = document.getElementById('cssEditor').value;
+                    const previewContainer = document.getElementById('preview-content');
+            
+                    // Clear and update preview
+                    previewContainer.innerHTML = '';
+            
+                    // Create style element
+                    const style = document.createElement('style');
+                    style.textContent = cssCode;
+                    previewContainer.appendChild(style);
+            
+                    // Create content wrapper
+                    const content = document.createElement('div');
+                    content.innerHTML = htmlCode;
+                    previewContainer.appendChild(content);
+                    }
+
+                    function validateForm(event) {
+                    event.preventDefault();
+            
+                    // Get form values
+                    const productName = document.querySelector('input[name="ProductName"]').value.trim();
+                    const category = document.querySelector('input[name="Category"]').value.trim();
+                    const basePrice = document.querySelector('input[name="BasePrice"]').value.trim();
+                    const techStack = document.querySelector('select[name="TechStack"]').value.trim();
+                    const htmlCode = document.getElementById('htmlEditor').value.trim();
+                    const cssCode = document.getElementById('cssEditor').value.trim();
+            
+                    // Check required fields
+                    const missingFields = [];
+            
+                    if (!productName) missingFields.push('Component Name');
+                    if (!category) missingFields.push('Category');
+                    if (!basePrice) missingFields.push('Price');
+                    if (!techStack) missingFields.push('Tech Stack');
+                    if (!htmlCode) missingFields.push('HTML Code');
+                    if (!cssCode) missingFields.push('CSS Code');
+            
+                    // If missing fields, show alert
+                    if (missingFields.length > 0) {
+                    alert('❌ กรุณากรอกข้อมูลต่อไปนี้:\n\n• ' + missingFields.join('\n• '));
+                    return false;
+                    }
+            
+                    // All fields filled, submit form
+                    document.getElementById('productForm').submit();
+                    }
+                </script>
+            </body>
+
+        </html>

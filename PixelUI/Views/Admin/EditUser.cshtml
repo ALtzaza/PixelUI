@@ -1,0 +1,186 @@
+@model PixelUI.Models.Db.User
+@{
+    Layout = null;
+    ViewData["Title"] = "Edit User";
+    var role = Context.Session.GetString("UserRole");
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- ใช้ CSS ชุดเดียวกับหน้าอื่น -->
+    <link rel="stylesheet" href="~/css/create-product.css">
+    <link rel="stylesheet" href="~/css/manage-staff-roles.css">
+
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            background-color: #050505;
+            color: white;
+        }
+
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px 60px;
+        }
+
+        /* ทำให้ form เป็นสไตล์เดียวกับ table container */
+        .form-container {
+            background: rgba(17, 17, 17, 0.8);
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            border-radius: 14px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+        }
+
+        .form-label {
+            color: #aaa;
+            font-size: 0.85rem;
+        }
+
+        .form-control::placeholder {
+        color: #333; /* สีขาว */
+        opacity: 1;  /* สำคัญ! ไม่งั้นมันจะจาง */
+        }
+
+
+        .form-control {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid #333;
+            color: white;
+        }
+
+        .form-control:focus {
+            border-color: #7C3AED;
+            box-shadow: none;
+            background: rgba(255,255,255,0.08);
+            color: white;
+        }
+
+        .btn-primary {
+            background: #7C3AED;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: #6d28d9;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="browse-page-wrapper">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <a href="/" class="sidebar-brand">PixelUI<span class="Text_Admin">Admin</span></a>
+         <ul class="nav-menu">
+
+        @* SuperAdmin เท่านั้น *@
+        @if (role == "SuperAdmin")
+        {
+            <li class="active"><i class="bi bi-person"></i><a href="/Admin/Userlist">User Management</a></li>
+            <li><i class="bi bi-sliders"></i><a href="/Admin/ManageStaffRoles">Manage Roles</a></li>
+            <li><i class="bi bi-wallet2"></i><a href="/Admin/FinancialOverview">Financial Overview</a></li>
+        }
+
+        @* Product Manager + SuperAdmin *@
+        @if (role == "SuperAdmin" || role == "Product Manager")
+        {
+            <li><i class="bi bi-plus-circle"></i><a href="/Admin/CreateProduct">Add Product</a></li>
+            <li><i class="bi bi-boxes"></i><a href="/Admin/ManageProducts">Manage Products</a></li>
+            <li><i class="bi bi-check-circle"></i><a href="/Admin/QCApprove">QC & Approve</a></li>
+        }
+
+        @* Marketing + SuperAdmin *@
+        @if (role == "SuperAdmin" || role == "Marketing")
+        {
+            <li><i class="bi bi-graph-up"></i><a href="/Admin/Analytics">Analytics</a></li>
+            <li><i class="bi bi-tag"></i><a href="/Admin/ManagePromotions">Promotions</a></li>
+        }
+
+        @* Customer Support + SuperAdmin *@
+        @if (role == "SuperAdmin" || role == "Customer Support")
+        {
+            <li><i class="bi bi-ticket"></i><a href="/Admin/Tickets">Support Tickets</a></li>
+            <li><i class="bi bi-check-circle"></i><a href="/Admin/StudentVerification">Student Verify</a></li>
+        }
+
+    </ul>
+    </aside>
+
+    <!-- Main -->
+    <main class="main-content">
+
+        <div class="admin-container">
+
+            <!-- Header -->
+            <div class="admin-header">
+                <div class="header-content">
+                    <h1><i class="bi bi-person"></i> Edit User</h1>
+                    <p>Edit user information</p>
+                </div>
+            </div>
+
+            <!-- Form -->
+            <div class="form-container">
+
+                <form method="post" action="/Admin/UpdateUser/@Model.UserId">
+
+                    <div class="mb-3">
+                        <label class="form-label">User ID</label>
+                        <input type="text" class="form-control" style="background-color: #333;" value="@Model.UserId" disabled>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Username</label>
+                        <input type="text" class="form-control" name="username" value="@Model.Username" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" name="email" value="@Model.Email" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control" name="password"
+                               placeholder="Leave blank to keep current password">
+                    </div>
+
+                    <input type="hidden" name="UserId" value="@Model.UserId">
+                    <input type="hidden" name="RoleId" value="@Model.RoleId">
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle"></i> Update
+                        </button>
+
+                        <a href="/Admin/Userlist" class="btn btn-outline-light">
+                            Cancel
+                        </a>
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+</body>
+</html>

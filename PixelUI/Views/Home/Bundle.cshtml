@@ -1,0 +1,201 @@
+@{
+    ViewData["Title"] = "Bundle Details";
+    var promo = ViewBag.Promo as PixelUI.Models.Db.Promotion;
+    var bundleProducts = ViewBag.BundleProducts as List<PixelUI.Models.Db.Product> ?? new List<PixelUI.Models.Db.Product>();
+    var firstId = bundleProducts.FirstOrDefault()?.ProductId;
+}
+
+<style>
+    /* ส่วนของ Container หลัก */
+    .bundle-page { 
+        padding: 60px 20px; 
+        max-width: 1200px; 
+        margin: 0 auto;
+        color: #ffffff;
+    }
+
+    /* Header Section */
+    .bundle-header { 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: flex-end; 
+        margin-bottom: 40px; 
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        padding-bottom: 25px;
+    }
+
+    .bundle-title h2 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 8px;
+        background: linear-gradient(90deg, #fff, #a855f7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .bundle-desc { color: #94a3b8; font-size: 1.1rem; }
+
+    /* Discount Badge */
+    .discount-tag {
+        background: rgba(16, 185, 129, 0.15);
+        color: #10b981;
+        padding: 4px 12px;
+        border-radius: 99px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        display: inline-block;
+        margin-bottom: 10px;
+    }
+
+    /* Grid Layout */
+    .bundle-grid { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+        gap: 24px; 
+    }
+
+    /* Card Design */
+    .bundle-item { 
+        background: rgba(255, 255, 255, 0.03); 
+        border: 1px solid rgba(255, 255, 255, 0.08); 
+        border-radius: 16px; 
+        padding: 24px; 
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .bundle-item:hover {
+        transform: translateY(-8px);
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(168, 85, 247, 0.4);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+
+    .product-name { 
+        font-weight: 700; 
+        font-size: 1.25rem; 
+        margin-bottom: 4px;
+        display: block;
+    }
+
+    .product-author { 
+        color: #64748b; 
+        font-size: 0.9rem; 
+        margin-bottom: 20px;
+        display: block;
+    }
+
+    .product-price { 
+        font-size: 1.5rem; 
+        font-weight: 800; 
+        color: #3b82f6; 
+        margin-top: auto;
+    }
+
+    /* Buttons */
+    .btn-checkout {
+        background: #7c3aed;
+        color: white;
+        padding: 12px 28px;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: 0.2s;
+        box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+    }
+
+    .btn-checkout:hover {
+        background: #8b5cf6;
+        transform: scale(1.05);
+        color: white;
+    }
+
+    .btn-view-detail {
+        margin-top: 15px;
+        display: inline-block;
+        color: #ffffff;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: 0.2s;
+    }
+
+    .btn-view-detail:hover { color: #c084fc; }
+
+</style>
+
+<div class="bundle-page">
+    <div class="bundle-header">
+        <div class="bundle-title">
+            <h2>Bundle @(promo?.PromoCode )</h2>
+            <div class="bundle-desc">@(promo?.Description ?? "Curated collection for developers")</div>
+        </div>
+        
+        <div style="text-align:right">
+            <div class="discount-tag"> Save @(promo?.DiscountPct ?? 0)% Off</div>
+            <div style="margin-top: 10px;">
+                @if (firstId.HasValue)
+                {
+                    <a href="@Url.Action("CheckOut", "Home", new { productId = firstId.Value, promoCode = promo?.PromoCode, bundleIds = promo?.BundleProductIds })" 
+                       class="btn-checkout">
+                       <i class="bi bi-cart-check-fill me-2"></i>Proceed to Checkout
+                    </a>
+                }
+                else
+                {
+                    <button class="btn btn-secondary" style="border-radius:12px;" disabled>Out of Stock</button>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="bundle-grid">
+    @foreach (var p in bundleProducts)
+    {
+        <div class="bundle-item">
+            <div class="component-preview-box">
+                @if (!string.IsNullOrEmpty(p.HtmlCode))
+                {
+                    var scopedHtml = $@"
+                        <html>
+                        <head>
+                            <style>
+                                body {{ 
+                                    margin: 0; display: flex; justify-content: center; 
+                                    align-items: center; height: 100vh; background: transparent; 
+                                    overflow: hidden; color: white;
+                                }}
+                                {p.CssCode}
+                            </style>
+                        </head>
+                        <body>
+                            {p.HtmlCode}
+                        </body>
+                        </html>";
+
+                    <iframe srcdoc="@scopedHtml" 
+                            style="width: 100%; height: 150px; border: none; pointer-events: none; background: transparent;">
+                    </iframe>
+                }
+                else
+                {
+                    <div class="no-preview">
+                        <i class="bi bi-eye-slash"></i>
+                    </div>
+                }
+            </div>
+
+            <div style="padding-top: 15px;">
+                <span class="product-name">@p.ProductName</span>
+                <span class="product-author">by @p.Author</span>
+                <div class="product-price">$@((p.BasePrice ?? 0).ToString("N2"))</div>
+                <a asp-controller="Product" asp-action="Detail" asp-route-id="@p.ProductId" class="btn-view-detail">
+                    View Product <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    }
+</div>
+</div>

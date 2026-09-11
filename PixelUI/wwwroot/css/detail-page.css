@@ -1,0 +1,838 @@
+/* .product-detail-container {
+    background-color: #000;
+    min-height: 100vh;
+    padding: 30px 50px;
+} */
+
+.product-detail-container {
+    background-color: #000;
+    min-height: 100vh;
+    height: auto;     
+    padding: 30px 50px;
+    overflow: visible; 
+    margin-bottom: 50px;
+}
+/* Product Info Card */
+.product-info-card {
+    background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 25px;
+    backdrop-filter: blur(10px);
+}
+
+.product-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 30px;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #333;
+}
+
+.product-name {
+    font-size: 28px;
+    font-weight: 700;
+    background: transparent;
+    border: none;
+    color: white;
+    outline: none;
+    margin: 0 0 8px 0;
+    width: 100%;
+    padding: 5px 0;
+}
+
+.product-category {
+    color: #888;
+    font-size: 13px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.product-category i  {
+   color: #a78bfa;
+    font-size: 12px;
+}
+
+
+
+.product-price {
+    background: rgba(67, 135, 244, 0.1);
+    border: 1px solid #4387f4;
+    border-radius: 8px;
+    padding: 12px 18px;
+    text-align: center;
+}
+
+.price-label {
+    display: block;
+    font-size: 11px;
+    color: #888;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.price-value {
+    display: block;
+    font-size: 24px;
+    font-weight: 700;
+    color: #4387f4;
+}
+
+.product-specs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+}
+
+.spec-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    background-color: rgba(255, 255, 255, 0.02);
+    border: 1px solid #444;
+    border-radius: 8px;
+    transition: all 0.3s;
+    align-items: flex-start;
+}
+
+.spec-item:hover {
+    border-color: #7C3AED;
+    background-color: rgba(124, 58, 237, 0.05);
+}
+
+.spec-item i {
+    font-size: 18px;
+    color: #7C3AED;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.spec-item strong {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+
+.spec-item p {
+    margin: 0;
+    color: #ccc;
+    font-size: 13px;
+}
+
+.complexity-level {
+    display: flex;
+    gap: 4px;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #333;
+    transition: all 0.3s;
+}
+
+.dot.filled {
+    background-color: #ffc107;
+    box-shadow: 0 0 6px rgba(255, 193, 7, 0.4);
+}
+
+.workspace {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr; /* สัดส่วนหน้าจอซ้ายขวา */
+    height: 75vh;
+    border: 1px solid #333;
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: #111;
+}
+
+
+
+.preview-side {
+    background-color: #1a1a1a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    border-right: 1px solid #333;
+}
+
+.preview-tools {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    color: #888;
+}
+
+.code-side {
+    background-color: #0d0d0d;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;      /* ป้องกันไม่ให้ content ข้างในดัน grid จนเบี้ยว */
+    overflow: hidden;  /* ตัดส่วนที่ล้นออกไปจัดการในลูก */
+}
+.code-tabs {
+    padding: 10px 20px;
+    background-color: #151515;
+    border-bottom: 1px solid #222;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.tab-btn {
+    background: none;
+    border: none;
+    color: #888;
+    padding: 10px 16px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+    border-bottom: 2px solid transparent;
+}
+
+.tab-btn.active {
+    color: #fff; 
+    border-bottom-color: var(--accent-purple);
+}
+
+.tab-content {
+    display: none;
+    height: 100%;
+    overflow: hidden !important;  /* ให้เกิด Scrollbar เฉพาะในส่วนเนื้อหาโค้ด */
+}
+.tab-content.show { display: block; }
+
+.tab-content pre {
+    margin: 0;
+    padding: 20px;
+    background: transparent !important;
+    white-space: pre;   /* รักษาฟอร์แมตโค้ด */
+    word-break: normal;
+    overflow-x: auto;   /* ให้เลื่อนซ้าย-ขวาได้ข้างในนี้เท่านั้น */
+}
+
+.tab-content code {
+    font-family: 'Fira Code', 'Consolas', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    display: block;    /* บังคับเป็น block เพื่อให้คำนวณพื้นที่ถูกต้อง */
+    width: max-content; /* ให้กว้างตามเนื้อหาโค้ดเพื่อรองรับการเลื่อนแนวนอน */
+}
+
+/* 1. กำหนดความกว้างของ Scrollbar */
+.tab-content::-webkit-scrollbar, 
+.tab-content pre::-webkit-scrollbar {
+    width: 6px;  /* ความกว้างแนวตั้ง */
+    height: 6px; /* ความสูงแนวนอน */
+}
+
+/* 2. พื้นหลังของ Scrollbar (Track) */
+.tab-content::-webkit-scrollbar-track, 
+.tab-content pre::-webkit-scrollbar-track {
+    background: #0d0d0d; /* สีเดียวกับพื้นหลังกล่องโค้ด */
+    border-radius: 10px;
+}
+
+/* 3. ตัวเลื่อน (Thumb) */
+.tab-content::-webkit-scrollbar-thumb, 
+.tab-content pre::-webkit-scrollbar-thumb {
+    background: #333; /* สีเทาเข้ม */
+    border-radius: 10px;
+    transition: background 0.3s;
+}
+
+/* 4. เมื่อเอาเมาส์ไปวางบนตัวเลื่อน ให้สีเด่นขึ้น */
+.tab-content::-webkit-scrollbar-thumb:hover, 
+.tab-content pre::-webkit-scrollbar-thumb:hover {
+    background: #4387f4; /* สีฟ้าเดียวกับ Tab ที่ Active */
+}
+
+/* 5. (Optional) ซ่อน Scrollbar แนวนอนที่ไม่ได้ใช้ในตัว Container หลัก */
+.tab-content {
+    scrollbar-width: thin; /* สำหรับ Firefox */
+    scrollbar-color: #333 #0d0d0d; /* สำหรับ Firefox */
+}
+
+.copy-btn {
+    background: #222; border: 1px solid #444; color: #fff;
+    padding: 5px 15px; border-radius: 6px; font-size: 13px;
+}
+
+.go-back-link { color: #888; text-decoration: none; font-size: 14px; transition: 0.3s; }
+.go-back-link:hover { color: #fff; }
+
+.code-editor {
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    background-color: #0d0d0d;
+    color: #d4d4d4;
+    font-family: 'Fira Code', 'Consolas', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    border: none;
+    outline: none;
+    resize: none;
+    overflow: auto;
+}
+
+/* .code-editor:focus {
+    background-color: #1a1a1a;
+}
+
+.code-editor::placeholder {
+    color: #666;
+} */
+
+/* Blurred code styling */
+.code-editor.blurred {
+    filter: blur(5px);
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.blurred-code-alert {
+    position: absolute;
+    top: 95%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.9);
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+    color: #fff;
+    z-index: 10;
+    border: 1px solid #444;
+}
+
+.blurred-code-alert i {
+    font-size: 48px;
+    color: #ffc107;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.blurred-code-alert p {
+    font-size: 16px;
+    margin: 0;
+    font-weight: 600;
+}
+
+/* Browser compatibility section */
+.compatibility-container {
+    padding: 20px;
+    background-color: #0d0d0d;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    max-height: 100%;
+    overflow-y: auto;
+    height: 100%;
+}
+
+.browser-badge {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    gap: 12px;
+    transition: all 0.3s;
+}
+
+.browser-badge:hover {
+    border-color: #4387f4;
+    background-color: #151515;
+}
+
+.browser-badge i {
+    font-size: 24px;
+}
+
+.browser-badge div {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.browser-name {
+    font-weight: 600;
+    color: #fff;
+    font-size: 14px;
+}
+
+.browser-version {
+    font-size: 12px;
+    color: #888;
+}
+
+/* CTA Container */
+.cta-container {
+    background-color: #151515;
+    padding: 30px;
+    border-radius: 12px;
+    border: 1px solid #333;
+}
+
+.cta-container .alert {
+    background-color: rgba(68, 135, 244, 0.15);
+    border-color: #4387f4;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.cta-container .alert i {
+    font-size: 20px;
+}
+
+.cta-container .alert strong {
+    margin-left: 5px;
+}
+
+.purchase-buttons,
+.download-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 15px;
+}
+
+.purchase-buttons .btn,
+.download-buttons .btn {
+    flex: 1;
+    min-width: 200px;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+.purchase-buttons .btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.purchase-buttons .btn-success:hover {
+    background-color: #218838;
+    border-color: #218838;
+}
+
+.purchase-buttons .btn-outline-secondary {
+    border-color: #666;
+    color: #fff;
+}
+
+.purchase-buttons .btn-outline-secondary:hover {
+    background-color: #444;
+    border-color: #888;
+}
+
+.download-buttons .btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.download-buttons .btn-success:hover {
+    background-color: #218838;
+    border-color: #218838;
+}
+
+.download-buttons .btn-outline-secondary {
+    border-color: #666;
+    color: #fff;
+}
+
+.download-buttons .btn-outline-secondary:hover {
+    background-color: #444;
+    border-color: #888;
+}
+
+/* FREE TAG Styling */
+.free-tag {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: #fff !important;
+    padding: 8px 16px !important;
+    border-radius: 6px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    font-size: 12px !important;
+    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+}
+
+.free-tag i {
+    font-size: 14px;
+}
+
+/* Alert styling enhancements */
+.cta-container .alert {
+    background-color: rgba(68, 135, 244, 0.15);
+    border-color: #4387f4;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.cta-container .alert-success {
+    background-color: rgba(34, 197, 94, 0.15);
+    border-color: #22c55e;
+}
+
+.cta-container .alert-warning {
+    background-color: rgba(245, 158, 11, 0.15);
+    border-color: #f59e0b;
+}
+
+.cta-container .alert-info {
+    background-color: rgba(59, 130, 246, 0.15);
+    border-color: #3b82f6;
+}
+
+.cta-container .alert-success i {
+    color: #22c55e;
+}
+
+.cta-container .alert-warning i {
+    color: #f59e0b;
+}
+
+.cta-container .alert-info i {
+    color: #3b82f6;
+}
+
+/* บังคับให้ตัดคำแบบ 100% */
+#exportModal pre[class*="language-"] {
+    background-color: #1a1a1a !important;
+    margin: 0 !important;
+    padding: 50px 20px 20px 20px !important; /* เว้นด้านบนเยอะหน่อยกันทับปุ่ม */
+    
+    /* ส่วนสำคัญที่ทำให้ตัดคำ */
+    white-space: pre-wrap !important;       /* บังคับขึ้นบรรทัดใหม่ */
+    word-break: break-word !important;      /* ตัดคำที่ยาวเกินไป */
+    word-wrap: break-word !important;       /* สำหรับ Browser รุ่นเก่า */
+    
+    overflow-x: hidden !important;          /* ปิดการเลื่อนซ้ายขวาถาวร */
+    overflow-y: auto !important;            /* ให้เลื่อนขึ้นลงได้ปกติ */
+    max-height: 70vh !important;            /* จำกัดความสูงไม่ให้ล้นจอ */
+    display: block !important;
+    width: 100% !important;                 /* บังคับกว้างเต็มพื้นที่ modal */
+}
+
+/* คุมตัว <code> ข้างในด้วย */
+#exportModal pre[class*="language-"] code {
+    white-space: pre-wrap !important;       /* ย้ำอีกรอบที่ตัว code */
+    word-break: break-word !important;
+    display: block !important;
+    width: 100% !important;
+}
+
+/* จัดการ Scrollbar ให้ดูแพง (แบบ Uiverse) */
+#exportModal pre::-webkit-scrollbar {
+    width: 5px;
+}
+#exportModal pre::-webkit-scrollbar-track {
+    background: #121212;
+}
+#exportModal pre::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 10px;
+}
+#exportModal pre::-webkit-scrollbar-thumb:hover {
+    background: #4387f4;
+}
+
+/* ปรับตำแหน่งปุ่ม Copy ให้ไม่ลอยไปไกล */
+.code-toolbar {
+    position: relative !important;
+    width: 100% !important;
+}
+
+div.code-toolbar > .toolbar {
+    position: absolute !important;
+    top: 15px !important;
+    right: 15px !important;
+    opacity: 1 !important; /* ให้เห็นปุ่มตลอดเวลา */
+}
+
+div.code-toolbar > .toolbar .copy-to-clipboard-button {
+    background: #333 !important;
+    border: 1px solid #444 !important;
+    color: #eee !important;
+    padding: 5px 12px !important;
+    border-radius: 5px !important;
+    cursor: pointer !important;
+}
+
+/* --- ส่วนปุ่ม Export (Uiverse style) --- */
+
+/* 1. จัดการตัว Dropdown หลัก */
+.dropdown-menu {
+    background-color: #1a1a1a !important; /* พื้นหลัง Dropdown เข้ม */
+    border: 1px solid #333 !important;
+    border-radius: 10px !important;
+    padding: 8px !important;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* 2. สไตล์สำหรับ Item ใน Dropdown */
+.dropdown-item {
+    color: #eee !important; /* สีตัวอักษรขาวเทา */
+    font-size: 13px !important;
+    padding: 8px 12px !important;
+    border-radius: 8px !important;
+    transition: all 0.3s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    cursor: pointer !important;
+    user-select: none;
+}
+
+/* 3. จัดการ Icon ข้างใน ให้เป็นสีขาว */
+.dropdown-item i {
+    font-size: 16px !important;
+    color: #fff !important; /* บังคับให้ Icon เป็นสีขาว */
+    opacity: 0.8 !important;
+}
+
+/* 4. เอฟเฟกต์ Glow (เรืองแสง) เมื่อเอาเมาส์ไปวาง (Hover) */
+.dropdown-item:hover {
+    background-color: rgba(124, 58, 237, 0.15) !important; 
+    color: #c4b5fd !important; 
+    box-shadow: 0 0 15px rgba(124, 58, 237, 0.4) !important;
+}
+
+/* 5. เมื่อ Hover ให้ Icon เด่นขึ้น */
+.dropdown-item:hover i {
+  color: #a78bfa !important;
+}
+
+/* 6. ตัวแบ่ง (Divider) ให้ดูดี */
+.dropdown-divider {
+    border-top: 1px solid #333 !important;
+}
+
+/* 7. ปรับสไตล์ปุ่มหลัก "Export" */
+.btn-export {
+    background-color: #222 !important;
+    border: 1px solid #444 !important;
+    color: #fff !important;
+    border-radius: 6px !important;
+    font-size: 13px !important;
+    padding: 6px 15px !important;
+    transition: all 0.3s ease !important; /* เพิ่ม ease ให้ดูสมูทขึ้น */
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-export:hover {
+    /* เปลี่ยนจากฟ้าเป็นม่วง #7C3AED */
+    border-color: #7C3AED !important;
+    background-color: rgba(124, 58, 237, 0.1) !important; /* พื้นหลังม่วงจางๆ */
+    color: #c4b5fd !important; /* ตัวหนังสือม่วงอ่อน */
+    
+    /* เพิ่มเอฟเฟกต์เรืองแสง (Glow) แบบนวลๆ */
+    box-shadow: 0 0 12px rgba(124, 58, 237, 0.4) !important;
+    transform: translateY(-1px); /* ยกตัวขึ้นนิดนึงเวลาจ่อเมาส์ */
+}
+
+
+/* คุมขนาดรูปโลโก้ใน Dropdown */
+.dropdown-logo {
+    width: 18px;      /* ขนาดความกว้าง */
+    height: 18px;     /* ขนาดความสูง */
+    object-fit: contain;
+    margin-right: 10px; /* ระยะห่างระหว่างรูปกับตัวหนังสือ */
+    filter: drop-shadow(0 0 2px rgba(255,255,255,0.2)); /* เพิ่มมิตินิดๆ */
+}
+
+/* เมื่อเอาเมาส์ไปวาง ให้รูปดูเรืองแสงขึ้นนิดหน่อย */
+.dropdown-item:hover .dropdown-logo {
+    filter: drop-shadow(0 0 5px rgba(67, 135, 244, 0.5));
+    transform: scale(1.1); /* ขยายรูปขึ้นนิดนึงเวลา hover */
+    transition: 0.2s;
+}
+
+.product-description-display {
+    margin-top: 60px;
+}
+
+/* GRID */
+.desc-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 50px;
+}
+
+/* LEFT */
+.desc-left h2 {
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.desc-sub {
+    color: #c3c3c3;
+    margin-bottom: 15px;
+}
+
+.desc-text {
+    color: #ffffff;
+    line-height: 1.8;
+    font-size: 15px;
+}
+
+/* INCLUDED */
+.included-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 15px;
+}
+
+.included-list li {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    color: #e2e8f0;
+}
+
+.included-list span {
+    color: #7c3aed;
+}
+
+/* RIGHT CARD */
+.desc-right-card {
+    background: #111;
+    padding: 25px;
+    border-radius: 16px;
+    border: 1px solid #444;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+.desc-right-card h3 {
+    margin-bottom: 20px;
+}
+
+/* HIGHLIGHTS */
+.highlight-list {
+    list-style: none;
+    padding: 0;
+}
+
+.highlight-list li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    color: #e2e8f0;
+}
+
+.highlight-list i {
+    color: #22c55e;
+}
+
+/* FORMAT */
+.format-box {
+    margin-top: 25px;
+    padding-top: 15px;
+    border-top: 1px solid #444;
+}
+
+.format-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+    color: #cbd5f5;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .desc-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ===== Report Modal Theme ===== */
+.report-modal {
+    background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+    border: 1px solid #333;
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+}
+
+/* Header */
+.report-modal .modal-header {
+    border-bottom: 1px solid #333;
+}
+
+.report-modal .modal-title {
+    color: #fff;
+}
+
+/* Body */
+.report-modal .modal-body {
+    background: transparent;
+}
+
+/* Input + Textarea */
+.report-modal .form-control {
+    background-color: rgba(255, 255, 255, 0.02);
+    border: 1px solid #444;
+    color: #fff;
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+.report-modal .form-control::placeholder {
+    color: #666;
+}
+
+.report-modal .form-control:focus {
+    border-color: #7C3AED;
+    box-shadow: 0 0 8px rgba(124, 58, 237, 0.4);
+    background-color: rgba(124, 58, 237, 0.05);
+    color: #fff;
+}
+
+/* Footer */
+.report-modal .modal-footer {
+    border-top: 1px solid #333;
+}
+
+/* Button */
+.report-modal .btn-dev {
+    background: #7C3AED;
+    border: none;
+    color: #fff;
+    border-radius: 8px;
+    padding: 8px 16px;
+    transition: all 0.3s;
+}
+
+.report-modal .btn-dev:hover {
+    background: #6d28d9;
+    box-shadow: 0 0 10px rgba(124, 58, 237, 0.5);
+}

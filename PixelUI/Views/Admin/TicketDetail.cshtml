@@ -1,0 +1,365 @@
+@model PixelUI.Models.Db.Ticket
+
+@{
+    Layout = null;
+    var role = Context.Session.GetString("UserRole");
+}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="~/css/create-product.css">
+    <link rel="stylesheet" href="~/css/manage-products.css">
+
+    <style>
+        .main-content { flex:1; overflow-y:auto; padding:40px 60px; }
+        .ticket-container { background:#0b0b0c; border:1px solid #221a2b; border-radius:12px; padding:22px; color:#ddd; }
+        .chat-box { background:#070709; border:1px solid #222; border-radius:10px; padding:18px; max-height:60vh; overflow:auto; }
+        .bubble { max-width:70%; padding:10px 14px; border-radius:12px; margin-bottom:10px; }
+        .bubble.user { background:#111; color:#ddd; float:left; }
+        .bubble.admin { background:linear-gradient(90deg,#7C3AED,#6d28d9); color:#fff; float:right; text-align:right; }
+        .meta { font-size:12px; color:#999; margin-top:6px; }
+        .ticket-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+        #replyInput {
+        height: 40px;
+        resize: none;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid #222;
+        color: #ffffff;
+        
+        }
+        #replyInput::placeholder {
+        color: #333;
+        }
+        #replyInput:focus {
+        outline: none;
+        border-color: #7C3AED;
+        }
+        #attachmentFilename {
+    display: none;
+}
+
+.btn-sm {
+    height: 40px;
+    display: flex;
+    align-items: center;
+}
+
+.img-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(0,0,0,0.95);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    visibility: hidden;
+    opacity: 0;
+    transition: 0.2s;
+}
+
+.img-modal.show {
+    visibility: visible;
+    opacity: 1;
+}
+
+.modal-content {
+    display: block;
+    margin: auto;              /* กันกรณี fallback */
+    max-width: 90vw;
+    max-height: 90vh;
+    object-fit: contain;
+    border-radius: 12px;
+    box-shadow: 0 0 40px rgba(0,0,0,0.8);
+}
+.close-btn {
+    position: absolute;
+    top: 20px;
+    right: 25px;
+    font-size: 32px;
+    color: white;
+    cursor: pointer;
+    opacity: 0.8;
+}
+
+.close-btn:hover {
+    opacity: 1;
+}
+
+.chat-image {
+    max-width: 240px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.chat-image:hover {
+    transform: scale(1.05);
+    opacity: 0.9;
+}
+    </style>
+</head>
+<body>
+    <div class="browse-page-wrapper">
+
+    <aside class="sidebar">
+            <a href="/" class="sidebar-brand">PixelUI<span class="Text_Admin">Admin</span></a>
+             <ul class="nav-menu">
+
+        @* SuperAdmin เท่านั้น *@
+        @if (role == "SuperAdmin")
+        {
+            <li><i class="bi bi-person"></i><a href="/Admin/Userlist">User Management</a></li>
+            <li><i class="bi bi-sliders"></i><a href="/Admin/ManageStaffRoles">Manage Roles</a></li>
+            <li><i class="bi bi-wallet2"></i><a href="/Admin/FinancialOverview">Financial Overview</a></li>
+        }
+
+        @* Product Manager + SuperAdmin *@
+        @if (role == "SuperAdmin" || role == "Product Manager")
+        {
+            <li><i class="bi bi-plus-circle"></i><a href="/Admin/CreateProduct">Add Product</a></li>
+            <li><i class="bi bi-boxes"></i><a href="/Admin/ManageProducts">Manage Products</a></li>
+            <li><i class="bi bi-check-circle"></i><a href="/Admin/QCApprove">QC & Approve</a></li>
+        }
+
+        @* Marketing + SuperAdmin *@
+        @if (role == "SuperAdmin" || role == "Marketing")
+        {
+            <li><i class="bi bi-graph-up"></i><a href="/Admin/Analytics">Analytics</a></li>
+            <li><i class="bi bi-tag"></i><a href="/Admin/ManagePromotions">Promotions</a></li>
+        }
+
+        @* Customer Support + SuperAdmin *@
+        @if (role == "SuperAdmin" || role == "Customer Support")
+        {
+            <li class="active"><i class="bi bi-ticket"></i><a href="/Admin/Tickets">Support Tickets</a></li>
+            <li><i class="bi bi-check-circle"></i><a href="/Admin/StudentVerification">Student Verify</a></li>
+        }
+
+    </ul>
+            </aside>
+
+        <main class="main-content container">
+            <div class="ticket-container">
+                <div class="ticket-head">
+                    <div>
+                        <h3>@Model.Subject</h3>
+                        <div style="color: #333;">
+                            From: @Model.User?.Username (@Model.User?.Email)
+                        </div>
+                    </div>
+                    <div>
+                        <div>Status: <strong id="ticketStatus">@Model.Status</strong></div>
+                        <div  style="color: #333;">Created: @Model.CreatedAt.ToString("g")</div>
+
+                        <div style="margin-top:8px; display:flex; gap:8px; justify-content:flex-end;">
+                            <form id="resolveForm" method="post" action="/Admin/ResolveTicket/@Model.TicketId" style="display:inline-block;">
+                                @Html.AntiForgeryToken()
+                                <button id="resolveBtn" type="submit" class="btn btn-success btn-sm">Resolve</button>
+                            </form>
+
+                            <form id="closeForm" method="post" action="/Admin/CloseTicket/@Model.TicketId" style="display:inline-block;">
+                                @Html.AntiForgeryToken()
+                                <button id="closeBtn" type="submit" class="btn btn-danger btn-sm">Close</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                    <div style="margin-bottom:12px; padding:12px; border-radius:8px; background:rgba(255,255,255,0.02);">
+                        <strong>Original message</strong>
+                        @{ var orig = Model.Message ?? string.Empty;
+                           if (orig.StartsWith("[Product]")) {
+                               var i = orig.IndexOf("\n\n");
+                               if (i >= 0) orig = orig.Substring(i+2).Trim();
+                               else { var i2 = orig.IndexOf('\n'); if (i2 >= 0) orig = orig.Substring(i2+1).Trim(); }
+                           }
+                        }
+                        <div class="text-muted">@orig</div>
+                    </div>
+
+                <div class="chat-box mb-3">
+                    @foreach (var m in Model.Messages.OrderBy(m => m.CreatedAt))
+                    {
+                        if (m.IsAdmin)
+                        {
+                            <div class="bubble admin">
+                                <div class="fw-bold">Support</div>
+                                <div>@Html.Raw(System.Net.WebUtility.HtmlEncode(m.Message))</div>
+                                @if (!string.IsNullOrEmpty(m.AttachmentPath))
+                                {
+                                    <div style="margin-top:8px;">
+                                        
+                                         <img src="@m.AttachmentPath" 
+     class="chat-image"
+     onclick="openImage(this.src)" />
+                                      
+                                    </div>
+                                }
+                                <div class="meta">@m.CreatedAt.ToString("g")</div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="bubble user">
+                                <div class="fw-bold"  style="color: #ffffff;">@m.User?.Username </div>
+                                <div>@Html.Raw(System.Net.WebUtility.HtmlEncode(m.Message))</div>
+                                @if (!string.IsNullOrEmpty(m.AttachmentPath))
+                                {
+                                    <div style="margin-top:8px;">
+                                       
+                                           <img src="@m.AttachmentPath" 
+     class="chat-image"
+     onclick="openImage(this.src)" />
+                                      
+                                    </div>
+                                }
+                                <div class="meta">@m.CreatedAt.ToString("g")</div>
+                            </div>
+                        }
+                        <div style="clear:both"></div>
+                    }
+                </div>
+
+                <div>
+                    <form id="replyForm" method="post" action="/Admin/ReplyTicket/@Model.TicketId" enctype="multipart/form-data">
+                        @Html.AntiForgeryToken()
+                        <div class="d-flex" style="gap:12px; align-items:flex-end;">
+                            <textarea id="replyInput" name="message" class="form-control" placeholder="Write a reply..." rows="2" required></textarea>
+
+        <div style="display:flex; gap:6px; align-items:center;">
+    <label class="btn btn-outline-secondary btn-sm" for="adminAttachment"><i class="bi bi-paperclip"></i><span>Attach</span></label>
+    <input type="file" id="adminAttachment" name="attachment" accept="image/*" style="display:none; " />
+    <button id="replyBtn" class="btn btn-primary btn-sm" type="submit">Reply</button>
+</div>
+                            @* <div id="attachmentFilename" class="text-muted small" style="max-width:200px; word-break:break-all; display:block;"></div>
+                                <img id="attachmentPreview" src="" style="max-width:140px; border-radius:8px; display:none; margin-top:6px;" />
+                        </div> *@
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+
+    <div id="imageModal" class="img-modal">
+    <span class="close-btn" onclick="closeImage()">&times;</span>
+    <img id="modalImg" class="modal-content">
+</div>
+    <script>
+function openImage(src) {
+    const modal = document.getElementById("imageModal");
+    modal.classList.add("show");
+    document.getElementById("modalImg").src = src;
+}
+
+function closeImage() {
+    document.getElementById("imageModal").style.display = "none";
+    document.getElementById("imageModal").addEventListener("click", function(e){
+    if (e.target.id === "imageModal") {
+        closeImage();
+    }
+});
+}
+        async function postFormAjax(form) {
+            const tokenInput = form.querySelector('input[name="__RequestVerificationToken"]');
+            const token = tokenInput ? tokenInput.value : null;
+            const fd = new FormData();
+            if (token) fd.append('__RequestVerificationToken', token);
+
+            // include other inputs if any
+            for (const inp of form.querySelectorAll('input[name]:not([name="__RequestVerificationToken"])')) {
+                fd.append(inp.name, inp.value);
+            }
+
+            const resp = await fetch(form.action, {
+                method: 'POST',
+                body: fd,
+                credentials: 'same-origin',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+
+            if (!resp.ok) throw new Error('Request failed');
+            return resp.json();
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const resolveForm = document.getElementById('resolveForm');
+            const closeForm = document.getElementById('closeForm');
+            const ticketStatusEl = document.getElementById('ticketStatus');
+            const replyInput = document.getElementById('replyInput');
+            const resolveBtn = document.getElementById('resolveBtn');
+            const closeBtn = document.getElementById('closeBtn');
+
+            if (resolveForm) {
+                resolveForm.addEventListener('submit', async function (e) {
+                    e.preventDefault();
+                    try {
+                        const data = await postFormAjax(resolveForm);
+                        if (data && data.success) {
+                            // update UI then navigate back to tickets list
+                            ticketStatusEl.textContent = data.status;
+                            replyInput.disabled = true;
+                            resolveBtn.disabled = true;
+                            closeBtn.disabled = true;
+                            window.location.href = '/Admin/Tickets';
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        alert('Failed to resolve ticket');
+                    }
+                });
+            }
+
+            if (closeForm) {
+                closeForm.addEventListener('submit', async function (e) {
+                    e.preventDefault();
+                    if (!confirm('Are you sure you want to close this ticket?')) return;
+                    try {
+                        const data = await postFormAjax(closeForm);
+                        if (data && data.success) {
+                            ticketStatusEl.textContent = data.status;
+                            replyInput.disabled = true;
+                            resolveBtn.disabled = true;
+                            closeBtn.disabled = true;
+                            window.location.href = '/Admin/Tickets';
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        alert('Failed to close ticket');
+                    }
+                });
+            }
+
+            // Admin attachment preview
+            const adminAttachment = document.getElementById('adminAttachment');
+            const attachmentFilename = document.getElementById('attachmentFilename');
+            const attachmentPreview = document.getElementById('attachmentPreview');
+            if (adminAttachment) {
+                adminAttachment.addEventListener('change', function (e) {
+                    const f = adminAttachment.files && adminAttachment.files[0];
+                    if (!f) {
+                        attachmentFilename.textContent = '';
+                        attachmentPreview.style.display = 'none';
+                        attachmentPreview.src = '';
+                        return;
+                    }
+                    attachmentFilename.textContent = f.name;
+                    if (f.type.startsWith('image/')) {
+                        attachmentPreview.src = URL.createObjectURL(f);
+                        attachmentPreview.style.display = 'block';
+                    } else {
+                        attachmentPreview.style.display = 'none';
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

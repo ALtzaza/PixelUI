@@ -1,0 +1,175 @@
+@model IEnumerable<PixelUI.Models.Db.Order>
+
+@{
+    ViewData["Title"] = "My Purchases";
+}
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <!-- Page Header -->
+            <div style="margin-bottom: 40px;">
+                <h1 style="color: #fff; font-weight: 700; margin-bottom: 10px;">
+                    <i class="bi bi-bag-check me-2" style="color: #7C3AED;"></i> My Purchases
+                </h1>
+                <p style="color: #a1a1aa; margin: 0;">View all your purchased products and licenses</p>
+            </div>
+
+            <!-- Purchases Table/List -->
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table" style="color: #fff; border-color: #1f1f23;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid #1f1f23;">
+                                <th style="color: #a1a1aa; font-weight: 600; padding: 15px;">Product Name</th>
+                                <th style="color: #a1a1aa; font-weight: 600; padding: 15px;">Purchase Date</th>
+                                <th style="color: #a1a1aa; font-weight: 600; padding: 15px;">Price</th>
+                                <th style="color: #a1a1aa; font-weight: 600; padding: 15px;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var order in Model)
+                            {
+                                <tr style="border-bottom: 1px solid #1f1f23; transition: all 0.2s ease;" 
+                                    onmouseover="this.style.backgroundColor='rgba(124, 58, 237, 0.05)'" 
+                                    onmouseout="this.style.backgroundColor='transparent'">
+                                    
+                                    <td style="padding: 15px; color: #fff; font-weight: 500;">
+                                        <i class="bi bi-box me-2" style="color: #7C3AED;"></i>
+                                        @(order.Product?.ProductName ?? "Unknown Product")
+                                    </td>
+                                    
+                                    <td style="padding: 15px; color: #a1a1aa;">
+                                        <i class="bi bi-calendar me-1"></i>
+                                        @(order.PurchaseDate?.ToString("dd MMM yyyy") ?? "N/A")
+                                    </td>
+                                    
+                                    <td style="padding: 15px; color: #7C3AED; font-weight: 600;">
+                                        $@(order.FinalPrice?.ToString("F2") ?? "0.00")
+                                    </td>
+                                    
+                                    <td style="padding: 15px;">
+                                        <a href="@Url.Action("Detail", "Product", new { id = order.ProductId })" 
+                                           class="btn btn-sm" style="background: transparent; border: 1px solid #7C3AED; color: #7C3AED; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 0.8rem; transition: all 0.3s;">
+                                            <i class="bi bi-eye me-1"></i> View
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Summary Card -->
+                <div class="admin-card p-4" style="margin-top: 30px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+                        <div>
+                            <p style="color: #a1a1aa; font-size: 0.85rem; margin: 0 0 8px 0;">Total Purchases</p>
+                            <h3 style="color: #7C3AED; margin: 0; font-weight: 700;">@Model.Count()</h3>
+                        </div>
+                        <div>
+                            <p style="color: #a1a1aa; font-size: 0.85rem; margin: 0 0 8px 0;">Total Spent</p>
+                            <h3 style="color: #fff; margin: 0; font-weight: 700;">
+                                $@(Model.Sum(o => o.FinalPrice ?? 0).ToString("F2"))
+                            </h3>
+                        </div>
+                        <div>
+                            <p style="color: #a1a1aa; font-size: 0.85rem; margin: 0 0 8px 0;">Recent Purchase</p>
+                            <h3 style="color: #fff; margin: 0; font-weight: 700;">
+                                @(Model.FirstOrDefault()?.PurchaseDate?.ToString("dd MMM yyyy") ?? "N/A")
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <!-- Empty State -->
+                <div class="admin-card p-5" style="text-align: center; padding: 60px 20px;">
+                    <i class="bi bi-inbox" style="font-size: 4rem; color: #7C3AED; display: block; margin-bottom: 20px;"></i>
+                    <h3 style="color: #fff; margin-bottom: 10px;">No Purchases Yet</h3>
+                    <p style="color: #a1a1aa; margin-bottom: 20px;">Start exploring our components and templates</p>
+                    <a href="@Url.Action("Browse", "Product")" class="btn btn-dev">
+                        <i class="bi bi-grid me-1"></i> Browse Components
+                    </a>
+                </div>
+            }
+
+            <!-- Back Link -->
+            <div style="margin-top: 30px;">
+                <a href="@Url.Action("Profile", "User")" style="color: #7C3AED; text-decoration: none; display: flex; align-items: center; gap: 8px; transition: all 0.3s;">
+                    <i class="bi bi-arrow-left"></i> Back to Profile
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* CSS Variables matching your theme */
+    :root {
+        --accent-purple: #7C3AED;
+        --card-bg: #0a0a0b;
+        --border-color: #1f1f23;
+        --text-muted: #a1a1aa;
+    }
+
+    .admin-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .btn-dev {
+        background: var(--accent-purple);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: 0.3s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .btn-dev:hover {
+        background: #8B5CF6;
+        box-shadow: 0 0 20px rgba(124, 58, 237, 0.4);
+        color: white;
+    }
+
+    .btn-outline-light {
+        border: 1px solid #333;
+        background: transparent;
+        color: var(--text-muted);
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+
+    .btn-outline-light:hover {
+        background: rgba(124, 58, 237, 0.1);
+        border-color: var(--accent-purple);
+        color: white;
+    }
+
+    .purchase-row {
+        transition: 0.2s ease-in-out;
+    }
+
+    .purchase-row:hover {
+        background: rgba(124, 58, 237, 0.02);
+    }
+
+    /* Table Reset */
+    .table > :not(caption) > * > * {
+        background-color: transparent;
+        box-shadow: none;
+    }
+</style>

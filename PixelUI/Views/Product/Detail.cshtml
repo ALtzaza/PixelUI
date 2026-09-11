@@ -1,0 +1,686 @@
+@model PixelUI.ViewModels.ProductDetailViewModel
+
+@{
+    ViewData["Title"] = Model.Product.ProductName;
+    string previewId = "preview-" + Model.Product.ProductId;
+}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="~/css/detail-page.css" />
+
+
+<style id="dynamic-css">
+
+    .modal {
+    z-index: 99999 !important;
+}
+
+.modal-backdrop {
+    z-index: 99998 !important;
+}
+
+
+    @Html.Raw(Model.Product.CssCode)
+
+    
+</style>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Success"]
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}
+
+<div class="product-detail-container">
+    <div class="top-nav d-flex justify-content-between align-items-center mb-3">
+        <a href="javascript:history.back()" class="go-back-link">
+            <i class="bi bi-arrow-left"></i> Go back
+        </a>
+        <div style="display: flex; flex-direction: column; align-items: flex-end;">
+            <div class="user-info"> 
+                <img src="https://ui-avatars.com/api/?name=@Model.Product.Author&background=random" class="rounded-circle ms-1" style="width:30px;">
+                <strong class="text-white ms-1" style="margin-right: 10px;">@(Model.Product.Author ?? "AqFox")</strong>
+
+                    <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#reportModal">
+                        <i class="bi bi-bug-fill"></i> Report Bug
+                    </button>
+            </div>
+            <div class="component-views" style="margin-top: 8px; font-size: 0.85rem; color: #888; display: flex; align-items: center; gap: 6px;">
+                <i class="bi bi-eye"></i>
+                <span>@(Model.Product.ViewCount > 0 ? (Model.Product.ViewCount > 999 ? $"{Model.Product.ViewCount / 1000}K" : Model.Product.ViewCount.ToString()) : "0") views</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Info Section -->
+    <div class="product-info-card mb-4">
+        <div class="product-header">
+            <div>
+                <h1 class="product-name">@Model.Product.ProductName</h1>
+                <p class="product-category">
+                    <i class="bi bi-tag-fill"></i> @(Model.Product.Category ?? "UI Component")
+                </p>
+            </div>
+            <div class="product-price">
+                <span class="price-label">Price</span>
+                @if (Model.Product.BasePrice == null || Model.Product.BasePrice == 0)
+                {
+                    <span class="price-value free-tag">
+                        <i class="bi bi-check-circle-fill"></i> Free
+                    </span>
+                }
+                else
+                {
+                    <span class="price-value">@Model.Product.BasePrice?.ToString("$0.00")</span>
+                }
+            </div>
+        </div>
+
+        <div class="product-specs">
+            @if (!string.IsNullOrEmpty(Model.Product.TechStack))
+            {
+                <div class="spec-item">
+                    <i class="bi bi-code-slash"></i>
+                    <div>
+                        <strong>Tech Stack</strong>
+                        <p>@Model.Product.TechStack</p>
+                    </div>
+                </div>
+            }
+            
+            @if (Model.Product.ComplexityTier.HasValue)
+            {
+                <div class="spec-item">
+                    <i class="bi bi-bar-chart"></i>
+                    <div>
+                        <strong>Complexity</strong>
+                        <div class="complexity-level">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                <span class="dot @(i <= Model.Product.ComplexityTier ? "filled" : "")"></span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <div class="spec-item">
+                <i class="bi bi-person-circle"></i>
+                <div>
+                    <strong>Designer</strong>
+                    <p>@(Model.Product.Author ?? "Anonymous")</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="workspace">
+        
+        <div class="preview-side" id="previewContainer">
+            <div class="preview-tools">
+                <div class="form-check form-switch d-inline-block ms-2">
+                    <input class="form-check-input" type="checkbox" id="modeSwitch">
+                    <i class="bi bi-brightness-high ms-1 text-white"></i>
+                </div>
+            </div>
+            
+            <div id="@previewId" class="preview-content">
+                @Html.Raw(Model.Product.HtmlCode)
+            </div>
+        </div>
+
+        <div class="code-side">
+            <div class="code-tabs">
+                <div class="btn-group">
+                    <button class="tab-btn active" onclick="openTab(event, 'html-section')">
+                        <i class="bi bi-filetype-html text-danger"></i> HTML
+                    </button>
+                    <button class="tab-btn" onclick="openTab(event, 'css-section')">
+                        <i class="bi bi-filetype-css text-primary"></i> CSS
+                    </button>
+                    <button class="tab-btn" onclick="openTab(event, 'compatibility-section')">
+                        <i class="bi bi-shield-check text-success"></i> Browser Support
+                    </button>
+                </div>
+
+<div class="dropdown">
+    <button class="btn btn-export dropdown-toggle" data-bs-toggle="dropdown">
+        Export
+    </button>
+<ul class="dropdown-menu">
+    <li>
+        <a class="dropdown-item" onclick="exportCode('react')">
+            <img src="/images/React.svg" alt="React" class="dropdown-logo"> React
+        </a>
+    </li>
+    <li>
+        <a class="dropdown-item" onclick="exportCode('vue')">
+            <img src="/images/Vue.js.svg" alt="Vue" class="dropdown-logo"> Vue
+        </a>
+    </li>
+    <li>
+        <a class="dropdown-item" onclick="exportCode('svelte')">
+            <img src="/images/Svelte.svg" alt="Svelte" class="dropdown-logo"> Svelte
+        </a>
+    </li>
+    <li>
+        <a class="dropdown-item" onclick="exportCode('lit')">
+            <img src="/images/lit-1.svg" alt="Lit" class="dropdown-logo"> Lit
+        </a>
+    </li>
+</ul>
+</div>
+                <button class="copy-btn" id="copyBtn" onclick="copyActiveCode()">
+                    <i class="bi bi-clipboard"></i> Copy
+                </button>
+            </div>
+
+            <!-- HTML Code Section -->
+            <div id="html-section" class="tab-content show">
+                @if (!Model.IsPurchased && !Model.IsLoggedIn)
+                {
+                    <div class="blurred-code-alert">
+                        <i class="bi bi-lock-fill"></i>
+                        <p>Sign in to view code</p>
+                    </div>
+                    <textarea class="code-editor blurred" id="html-raw" disabled>@Model.Product.HtmlCode</textarea>
+                }
+                else if (!Model.IsPurchased && Model.IsLoggedIn)
+                {
+                    <div class="blurred-code-alert">
+                        <i class="bi bi-lock-fill"></i>
+                        <p>Purchase to unlock full code access</p>
+                    </div>
+                    <textarea class="code-editor blurred" id="html-raw" disabled>@Model.Product.HtmlCode</textarea>
+                }
+                else
+                {
+                    <textarea class="code-editor" id="html-raw">@Model.Product.HtmlCode</textarea>
+                }
+            </div>
+
+            <!-- CSS Code Section -->
+            <div id="css-section" class="tab-content">
+                @if (!Model.IsPurchased && !Model.IsLoggedIn)
+                {
+                    <div class="blurred-code-alert">
+                        <i class="bi bi-lock-fill"></i>
+                        <p>Sign in to view code</p>
+                    </div>
+                    <textarea class="code-editor blurred" id="css-raw" disabled>@Model.Product.CssCode</textarea>
+                }
+                else if (!Model.IsPurchased && Model.IsLoggedIn)
+                {
+                    <div class="blurred-code-alert">
+                        <i class="bi bi-lock-fill"></i>
+                        <p>Purchase to unlock full code access</p>
+                    </div>
+                    <textarea class="code-editor blurred" id="css-raw" disabled>@Model.Product.CssCode</textarea>
+                }
+                else
+                {
+                    <textarea class="code-editor" id="css-raw" spellcheck="false">@Model.Product.CssCode</textarea>
+                }
+            </div>
+
+            <!-- Browser Compatibility Section -->
+            <div id="compatibility-section" class="tab-content">
+                <div class="compatibility-container">
+                    @if (Model.BrowserCompatibility != null && Model.BrowserCompatibility.Any())
+                    {
+                        @foreach (var browser in Model.BrowserCompatibility)
+                        {
+                            <div class="browser-badge">
+                                @if (browser.BrowserName.ToLower() == "chrome")
+                                {
+                                    <i class="bi bi-browser-chrome text-info"></i>
+                                }
+                                else if (browser.BrowserName.ToLower() == "firefox")
+                                {
+                                    <i class="bi bi-browser-firefox text-warning"></i>
+                                }
+                                else if (browser.BrowserName.ToLower() == "safari")
+                                {
+                                    <i class="bi bi-browser-safari text-secondary"></i>
+                                }
+                                else if (browser.BrowserName.ToLower() == "edge")
+                                {
+                                    <i class="bi bi-browser-edge text-primary"></i>
+                                }
+                                <div>
+                                    <span class="browser-name">@browser.BrowserName</span>
+                                    <span class="browser-version">@browser.MinVersion</span>
+                                </div>
+                                @if (browser.IsSupported)
+                                {
+                                    <i class="bi bi-check-circle-fill text-success ms-auto"></i>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-x-circle-fill text-danger ms-auto"></i>
+                                }
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Call to Action Section -->
+    <div class="cta-container mt-4">
+        @if (Model.Product.BasePrice == null || Model.Product.BasePrice == 0)
+        {
+            <!-- FREE PRODUCT -->
+            <div class="alert alert-success">
+                <i class="bi bi-gift-fill"></i>
+                <strong>Free Design!</strong> - Download and use this component with no restrictions.
+            </div>
+            <div class="download-buttons">
+                <button class="btn btn-success btn-lg" onclick="downloadFiles(@Model.Product.ProductId)">
+                    <i class="bi bi-download"></i> Download Files
+                </button>
+                <button class="btn btn-outline-secondary btn-lg" onclick="downloadCode('html')">
+                    <i class="bi bi-filetype-html"></i> Download HTML
+                </button>
+                <button class="btn btn-outline-secondary btn-lg" onclick="downloadCode('css')">
+                    <i class="bi bi-filetype-css"></i> Download CSS
+                </button>
+            </div>
+        }
+        else if (!Model.IsLoggedIn)
+        {
+            <!-- PAID PRODUCT - NOT LOGGED IN -->
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i>
+                <strong>Sign in to purchase</strong> - Create an account or log in to buy this design.
+            </div>
+            <a href="@Url.Action("Login", "Home")" class="btn btn-primary btn-lg">
+                <i class="bi bi-box-arrow-in-right"></i> Sign In / Register
+            </a>
+        }
+        else if (!Model.IsPurchased)
+        {
+            <!-- PAID PRODUCT - NOT PURCHASED -->
+            <div class="alert alert-warning">
+                <i class="bi bi-star-fill"></i>
+                <strong>Unlock Full Access</strong> - Purchase this design to get full code access and download files.
+            </div>
+            <div class="purchase-buttons">
+                <button class="btn btn-success btn-lg" onclick="purchaseProduct(@Model.Product.ProductId)">
+                    <i class="bi bi-credit-card"></i> Purchase Now - @Model.Product.BasePrice?.ToString("$0.00")
+                </button>
+                <button class="btn btn-outline-secondary btn-lg" onclick="addToCart(@Model.Product.ProductId)">
+                    <i class="bi bi-cart-plus"></i> Add to Cart
+                </button>
+            </div>
+        }
+        else
+        {
+            <!-- PURCHASED PRODUCT -->
+            <div class="alert alert-success">
+                <i class="bi bi-check-circle-fill"></i>
+                <strong>Purchased!</strong> - You have access to all code and files.
+            </div>
+            <div class="download-buttons">
+                <button class="btn btn-success btn-lg" onclick="downloadFiles(@Model.Product.ProductId)">
+                    <i class="bi bi-download"></i> Download Files
+                </button>
+                <button class="btn btn-outline-secondary btn-lg" onclick="downloadCode('html')">
+                    <i class="bi bi-filetype-html"></i> Download HTML
+                </button>
+                <button class="btn btn-outline-secondary btn-lg" onclick="downloadCode('css')">
+                    <i class="bi bi-filetype-css"></i> Download CSS
+                </button>
+            </div>
+        }
+    </div>
+    <!-- Product Description Display -->
+ <div class="product-description-display mt-5">
+    <div class="desc-grid">
+
+        <!-- LEFT -->
+        <div class="desc-left">
+            <h2>Overview</h2>
+            <p class="desc-sub">@Model.Product.ProductName</p>
+
+            <p class="desc-text">
+                @(Model.Product.Description ?? "No description provided.")
+            </p>
+
+            <h4 class="mt-4">What's Included</h4>
+
+            <ul class="included-list">
+                @{
+                    var items = Model.Product.IncludedItems?.Split('\n') ?? new string[] {};
+                    foreach (var item in items)
+                    {
+                        if (!string.IsNullOrWhiteSpace(item))
+                        {
+                            <li><span>▸</span> @item</li>
+                        }
+                    }
+                }
+            </ul>
+        </div>
+
+        <!-- RIGHT CARD -->
+        <div class="desc-right-card">
+            <h3>Highlights</h3>
+
+            <ul class="highlight-list">
+                @{
+                    var highlights = Model.Product.Highlights?.Split('\n') ?? new string[] {};
+                    foreach (var item in highlights)
+                    {
+                        if (!string.IsNullOrWhiteSpace(item))
+                        {
+                            <li><i class="bi bi-check-circle-fill"></i> @item</li>
+                        }
+                    }
+                }
+            </ul>
+
+            <div class="format-box">
+                <h5>Format</h5>
+                <div class="format-item">
+                    <i class="bi bi-filetype-css"></i>
+                    <span>@(Model.Product.Format ?? "HTML / CSS")</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+</div>
+
+<div class="modal fade" id="exportModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content bg-dark text-white border-secondary">
+<div class="modal-header border-secondary p-3">
+    <h5 class="modal-title d-flex align-items-center fs-6">
+        <img id="exportLogoImg" src="" alt="logo" class="me-2" style="width: 20px; height: 20px;"> 
+        <span id="exportTitle">React</span>
+    </h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+            <div class="modal-body p-0">
+                <div class="position-relative">
+                    <button class="btn btn-sm btn-outline-light position-absolute top-0 end-0 m-3" onclick="copyExportedCode()">
+                        <i class="bi bi-clipboard"></i> Copy
+                    </button>
+                   <pre class="m-0"><code id="exportCodeContent" class="language-jsx"></code></pre>
+                
+                </div>
+            </div>
+            <div class="modal-footer border-secondary">
+               
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="reportModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content report-modal">
+            
+            <div class="modal-header border-secondary flex-column align-items-start">
+                <h5 class="modal-title">
+                    <i class="bi bi-bug-fill me-2"></i> Report Issue
+                </h5>
+                    <small class="text-secondary mt-1"  style="font-size: 1rem;">
+                        Help us improve by reporting any issues or bugs you encounter.
+                    </small>
+                <button type="button" class="btn-close btn-close-white position-absolute end-0 top-0 m-3" data-bs-dismiss="modal"></button>
+            </div>
+
+ <form method="post" action="/Home/CreateTicket"
+      onsubmit="return confirm('Send this ticket?');">
+
+    @Html.AntiForgeryToken()
+
+    <div class="modal-body">
+        <input name="subject" class="form-control mb-3"
+               placeholder="Subject" required>
+
+        <textarea name="message" class="form-control"
+                  rows="4"
+                  placeholder="Describe the problem..." required></textarea>
+
+        <input type="hidden" name="productId" value="@Model.Product.ProductId" />
+    </div>
+
+    <div class="modal-footer border-secondary">
+        <button type="submit" class="btn btn-dev">
+            Send Ticket
+        </button>
+    </div>
+
+</form>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-jsx.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js"></script>
+
+
+<script>
+function exportCode(framework) {
+    const htmlCode = document.getElementById('html-raw').value;
+    const cssCode = document.getElementById('css-raw').value;
+
+    if (document.getElementById('html-raw').disabled) {
+        alert("Please purchase to export code.");
+        return;
+    }
+
+    fetch('/Product/Export', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            html: htmlCode,
+            css: cssCode,
+            framework: framework
+        })
+    })
+    .then(res => res.text())
+    .then(generatedCode => {
+        // 1. กำหนดหัวข้อและ Icon ตาม framework
+       // ของใหม่ที่ใช้เปลี่ยนรูปภาพโลโก้
+const titleMap = { 'react': 'React', 'vue': 'Vue', 'svelte': 'Svelte', 'lit': 'Lit' };
+
+// 1. สร้าง Map เก็บ Path ไปยังไฟล์โลโก้จริงที่คุณเอาไปใส่ไว้ใน wwwroot/images/
+// สมมติว่าตั้งชื่อไฟล์ตามนี้ครับ ปรับเปลี่ยนให้ตรงกับชื่อไฟล์จริงของคุณนะ
+const logoPathMap = { 
+    'react': '/images/React.svg', 
+    'vue': '/images/Vue.js.svg', 
+    'svelte': '/images/Svelte.svg', 
+    'lit': '/images/lit-1.svg' 
+};
+
+// 2. เปลี่ยนข้อความหัวข้อ
+document.getElementById('exportTitle').innerText = titleMap[framework] || framework;
+
+// 3. หา Element รูปภาพ และสั่งเปลี่ยน src ให้ตรงกับ framework ที่เลือก
+const logoImgElement = document.getElementById('exportLogoImg');
+if (logoImgElement) {
+    // ถ้าหา path ใน map ไม่เจอ ให้ใช้ path ว่างเปล่า (หรือกำหนดรูป default ไว้ก็ได้ครับ)
+    logoImgElement.src = logoPathMap[framework] || ''; 
+}
+        
+
+
+        // 2. ใส่โค้ดดิบๆ ลงใน Code Block
+        const codeElement = document.getElementById('exportCodeContent');
+        codeElement.textContent = generatedCode;
+
+        // 3. กำหนดภาษาเพื่อให้ Prism highlight ได้ถูกต้อง (สำหรับ React ใช้ JSX/JS)
+        if (framework === 'react') {
+            codeElement.className = 'language-jsx';
+        } else {
+            codeElement.className = 'language-javascript';
+        }
+
+        // 4. สั่งเปิด Modal ก่อน
+        var myModal = new bootstrap.Modal(document.getElementById('exportModal'));
+        myModal.show();
+
+        // 5. หลังจาก Modal เปิดแล้ว ให้ Prism ปรับสีโค้ดใหม่ทั้งหมดในหน้านั้น
+        // (เราใช้ setTimeout นิดหน่อยเพื่อให้ Modal โหลดเสร็จก่อน Prism จะคำนวณพื้นที่)
+        setTimeout(() => {
+            if (typeof Prism !== 'undefined') {
+                Prism.highlightAll();
+            }
+        }, 100);
+    })
+    .catch(err => console.error("Export error:", err));
+}
+
+    function openTab(evt, sectionId) {
+        var content = document.getElementsByClassName("tab-content");
+        for (var i = 0; i < content.length; i++) content[i].classList.remove("show");
+
+        var btns = document.getElementsByClassName("tab-btn");
+        for (var i = 0; i < btns.length; i++) btns[i].classList.remove("active");
+
+        document.getElementById(sectionId).classList.add("show");
+        evt.currentTarget.classList.add("active");
+    }
+
+    function copyActiveCode() {
+        const htmlSection = document.getElementById('html-section').classList.contains('show');
+        const cssSection = document.getElementById('css-section').classList.contains('show');
+        
+        let targetId, targetLabel;
+        if (htmlSection) {
+            targetId = 'html-raw';
+            targetLabel = '';
+        } else if (cssSection) {
+            targetId = 'css-raw';
+            targetLabel = '';
+        } else {
+            alert('Please select HTML or CSS tab to copy code');
+            return;
+        }
+
+        const codeElement = document.getElementById(targetId);
+        if (codeElement.disabled) {
+            alert('Sign in or purchase to access code');
+            return;
+        }
+
+        const code = codeElement.value;
+        navigator.clipboard.writeText(code).then(() => {
+            const btn = document.getElementById('copyBtn');
+            const original = btn.innerHTML;
+            btn.innerHTML = '<i class="bi bi-check-lg text-success"></i> Copied ' + targetLabel + '!';
+            setTimeout(() => { btn.innerHTML = original; }, 2000);
+        });
+    }
+
+function updatePreview() {
+    const htmlCode = document.getElementById('html-raw').value;
+    const cssCode = document.getElementById('css-raw').value;
+    const previewId = 'preview-@Model.Product.ProductId';
+    const previewContainer = document.getElementById(previewId);
+
+    if (previewContainer) {
+        previewContainer.innerHTML = htmlCode;
+    }
+
+    // ใช้ style เดิม ไม่ต้องสร้างใหม่
+    const styleElement = document.getElementById('dynamic-css');
+    styleElement.innerHTML = cssCode;
+}
+
+    // Update preview when code is edited (only if user has purchased)
+    const htmlEditor = document.getElementById('html-raw');
+    const cssEditor = document.getElementById('css-raw');
+    
+    if (htmlEditor && !htmlEditor.disabled) {
+        htmlEditor.addEventListener('input', updatePreview);
+    }
+    if (cssEditor && !cssEditor.disabled) {
+        cssEditor.addEventListener('input', updatePreview);
+    }
+
+    function purchaseProduct(productId) {
+        // Redirect to checkout or purchase page
+        window.location.href = '@Url.Action("CheckOut", "Home")' + '?productId=' + productId;
+    }
+
+    function addToCart(productId) {
+        alert('Product added to cart!');
+        // Implement cart functionality
+    }
+
+function downloadFiles(productId) {
+    // แก้จุดนี้: ใส่ @Url.Action เพื่อให้มัน Generate URL ที่ถูกต้องของ Server ออกมา
+    const downloadUrl = '@Url.Action("Download", "Product")' + '?id=' + productId;
+    
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    // ไม่ต้องระบุ link.download = true; เพราะฝั่ง Server (Controller) 
+    // เป็นคนกำหนดชื่อไฟล์และประเภทไฟล์ส่งมาให้อยู่แล้วครับ
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+    function downloadCode(type) {
+        const codeElement = type === 'html' ? document.getElementById('html-raw') : document.getElementById('css-raw');
+        const fileName = type === 'html' ? 'index.html' : 'style.css';
+        const content = codeElement.value;
+
+        const element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
+        element.setAttribute('download', fileName);
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+    }
+
+    document.getElementById('modeSwitch').addEventListener('change', function() {
+        document.getElementById('previewContainer').style.backgroundColor = this.checked ? '#fff' : '#1a1a1a';
+    });
+
+    document.querySelector("#ticketForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const form = e.target;
+
+    const response = await fetch(form.action, {
+        method: "POST",
+        body: new FormData(form)
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+        alert(result.message); // ✅ ตรงนี้แหละ "ส่งสำเร็จ"
+        form.reset(); // เคลียร์ฟอร์ม
+    } else {
+        alert(result.message);
+    }
+});
+</script>

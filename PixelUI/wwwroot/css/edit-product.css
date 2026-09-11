@@ -1,0 +1,312 @@
+/* Edit Product Styles */
+.product-detail-container {
+    background-color: transparent; /* ให้เห็น Gradient ของ main-content */
+    padding: 30px 60px;
+}
+
+.workspace {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    height: 65vh;
+    min-height: 550px;
+    border: 1px solid #333;
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: #0a0a0a;
+    margin-top: 20px;
+}
+
+.preview-side {
+    background: #151515;
+    background-image: radial-gradient(#222 1px, transparent 1px);
+    background-size: 20px 20px; /* เพิ่มจุด Grid เพื่อความสวยงาม */
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: auto;
+}
+
+/* จัดการส่วนหัวของหน้า Edit */
+.top-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+/* ซ่อน modal overlay ในหน้า Edit (เพราะเราไม่ได้ใช้ modal เลือกหมวดหมู่) */
+.main-content {
+    background: radial-gradient(circle at 50% -20%, #1a1a2e 0%, #000 70%);
+}
+
+.product-name-input {
+    border-bottom: 2px solid transparent !important;
+    transition: border-color 0.3s;
+}
+
+.product-name-input:focus {
+    border-bottom-color: #7C3AED !important;
+}
+
+/* เพิ่มความสวยงามให้ส่วน Code Editor */
+.code-editor {
+    background: #0d0d0d !important;
+    color: #a5d6ff !important; /* สีตัวอักษรแนว Code */
+}
+
+
+.edit-product-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 40px;
+}
+
+.edit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding: 0;
+    border-bottom: none;
+    gap: 20px;
+}
+
+.edit-header .header-content h1 {
+    margin: 0;
+    font-size: 2rem;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.edit-header .header-content p {
+    margin: 5px 0 0 0;
+    color: #888;
+}
+
+.btn-back {
+    background: #7C3AED;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-back:hover {
+    background: #6d28d9;
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+.edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    margin-bottom: 8px;
+    color: #ccc;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.form-input,
+.form-range,
+.code-editor {
+    padding: 12px;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.form-input:hover,
+.form-range:hover,
+.code-editor:hover {
+    border-color: #555;
+}
+
+.form-input:focus,
+.form-range:focus,
+.code-editor:focus {
+    border-color: #7C3AED;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+.form-range {
+    cursor: pointer;
+    padding: 8px 12px;
+}
+
+.complexity-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.complexity-wrapper .form-range {
+    flex: 1;
+    margin: 0;
+}
+
+.complexity-display {
+    color: #7C3AED;
+    font-weight: 600;
+    font-size: 1.1rem;
+    min-width: 30px;
+    text-align: center;
+}
+
+.code-editor {
+    font-family: 'Fira Code', 'Monaco', 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    resize: vertical;
+    min-height: 250px;
+    padding: 16px;
+}
+
+.code-editor::placeholder {
+    color: #666;
+    opacity: 0.7;
+}
+
+.text-danger {
+    color: #ef4444;
+    font-size: 0.85rem;
+    margin-top: 4px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 30px;
+    padding: 0;
+    border-top: none;
+}
+
+.btn-save,
+.btn-cancel {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem;
+}
+
+.btn-save {
+    background: #7C3AED;
+    color: #fff;
+}
+
+.btn-save:hover {
+    background: #6d28d9;
+    transform: translateY(-2px);
+}
+
+.btn-save:active {
+    transform: translateY(0);
+}
+
+.btn-cancel {
+    background: #333;
+    color: #fff;
+}
+
+.btn-cancel:hover {
+    background: #555;
+    color: #fff;
+}
+
+/* Input type number spinner removal for better look */
+.form-input[type="number"]::-webkit-outer-spin-button,
+.form-input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.form-input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+@media (max-width: 1024px) {
+    .edit-product-container {
+        padding: 0 30px;
+    }
+
+    .edit-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .form-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .edit-product-container {
+        padding: 0 20px;
+    }
+
+    .edit-header .header-content h1 {
+        font-size: 1.5rem;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .btn-save,
+    .btn-cancel {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .code-editor {
+        min-height: 200px;
+        font-size: 12px;
+    }
+}
+
+

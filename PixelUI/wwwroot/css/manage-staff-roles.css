@@ -1,0 +1,227 @@
+/* Manage Staff Roles Styles */
+
+/* Sidebar Navigation Styles */
+.nav-menu li {
+    transition: all 0.3s ease;
+    border-radius: 10px;
+}
+
+.nav-menu li:hover {
+    background: rgba(124, 58, 237, 0.15);
+    color: white;
+    padding-left: 25px;
+}
+
+.nav-menu li.active {
+    background: rgba(124, 58, 237, 0.25);
+    color: white;
+    border-left: 3px solid #7C3AED;
+    padding-left: 12px;
+}
+
+.nav-menu li a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.nav-menu li:hover a {
+    color: #7C3AED;
+}
+
+.admin-container {
+    padding: 30px;
+    background: #0f0f0f;
+    border-radius: 12px;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #333;
+}
+
+.admin-header .header-content h1 {
+    margin: 0;
+    font-size: 2rem;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.admin-header .header-content p {
+    margin: 5px 0 0 0;
+    color: #888;
+}
+
+.staff-table-container {
+    overflow: hidden;
+    border-radius: 14px;
+    background: rgba(17, 17, 17, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(124, 58, 237, 0.2);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);;
+}
+
+.staff-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: transparent;
+}
+
+.staff-table thead{
+     background: linear-gradient(to right, #0f0f0f, #111827);
+}
+
+.staff-table th {
+    padding: 18px;
+    color: #a78bfa;
+    font-weight: 600;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.staff-table td {
+    padding: 16px 15px;
+    border-bottom: 1px solid #1a1a1a;
+    color: #ccc;
+    font-size: 0.95rem;
+    vertical-align: middle;
+}
+
+.staff-table td strong{
+        color: #fff;
+    font-size: 1rem;
+}
+
+.staff-table tbody tr:hover {
+    background: rgba(124, 58, 237, 0.08);
+    transform: scale(1.01);
+}
+
+.role-badge {
+    display: inline-block;
+    background: #7C3AED;
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.role-select {
+    padding: 8px 12px;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #fff;
+    cursor: pointer;
+    font-size: 0.9rem;
+    min-width: 150px;
+    transition: border-color 0.2s ease;
+}
+
+.role-select:hover {
+    border-color: #7C3AED;
+}
+
+.role-select:focus {
+    border-color: #7C3AED;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-start;
+}
+
+.btn-update {
+    padding: 8px 14px;
+    background: #7C3AED;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-update:hover {
+    background: #6d28d9;
+    transform: translateY(-2px);
+}
+
+.btn-update:active {
+    transform: translateY(0);
+}
+
+.btn-edit {
+    padding: 6px 10px;
+    background: rgba(14,165,233,0.1);
+    color: #38bdf8;
+    border: 1px solid rgba(14,165,233,0.3);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-edit:hover {
+    background: #0ea5e9;
+    color: #fff
+}
+
+.btn-delete {
+    padding: 6px 10px;
+    background: rgba(239,68,68,0.1);
+    color: #f87171;
+    border: 1px solid rgba(239,68,68,0.3);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-delete:hover {
+    background: #ef4444;
+    color: #fff;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .admin-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .admin-header .header-content h1 {
+        font-size: 1.5rem;
+    }
+
+    .staff-table {
+        font-size: 0.85rem;
+    }
+
+    .staff-table td,
+    .staff-table th {
+        padding: 10px;
+    }
+}

@@ -1,0 +1,226 @@
+@model List<dynamic>
+
+@{
+    ViewData["Title"] = "Analytics - View vs Conversion";
+    Layout = null;
+    var role = Context.Session.GetString("UserRole");
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="~/css/create-product.css">
+    <link rel="stylesheet" href="~/css/manage-products.css">
+    <style>
+        .kpi-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+        .kpi-label {
+            color: #a0a0a0;
+            font-size: 0.95rem;
+        }
+        .rate-badge {
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .search-box {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .search-box input,
+        .search-box select {
+            background: #1a1a1c;
+            border: 1px solid #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+        .search-box input:focus,
+        .search-box select:focus {
+            border-color: #7C3AED;
+            outline: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="browse-page-wrapper">
+        <aside class="sidebar">
+            <a href="/" class="sidebar-brand">PixelUI<span class="Text_Admin">Admin</span></a>
+            <ul class="nav-menu">
+
+        @* SuperAdmin เท่านั้น *@
+        @if (role == "SuperAdmin")
+        {
+            <li><i class="bi bi-person"></i><a href="/Admin/Userlist">User Management</a></li>
+            <li><i class="bi bi-sliders"></i><a href="/Admin/ManageStaffRoles">Manage Roles</a></li>
+            <li><i class="bi bi-wallet2"></i><a href="/Admin/FinancialOverview">Financial Overview</a></li>
+        }
+
+        @* Product Manager + SuperAdmin *@
+        @if (role == "SuperAdmin" || role == "Product Manager")
+        {
+            <li><i class="bi bi-plus-circle"></i><a href="/Admin/CreateProduct">Add Product</a></li>
+            <li><i class="bi bi-boxes"></i><a href="/Admin/ManageProducts">Manage Products</a></li>
+            <li><i class="bi bi-check-circle"></i><a href="/Admin/QCApprove">QC & Approve</a></li>
+        }
+
+        @* Marketing + SuperAdmin *@
+        @if (role == "SuperAdmin" || role == "Marketing")
+        {
+            <li class="active"><i class="bi bi-graph-up"></i><a href="/Admin/Analytics">Analytics</a></li>
+            <li><i class="bi bi-tag"></i><a href="/Admin/ManagePromotions">Promotions</a></li>
+        }
+
+        @* Customer Support + SuperAdmin *@
+        @if (role == "SuperAdmin" || role == "Customer Support")
+        {
+            <li><i class="bi bi-ticket"></i><a href="/Admin/Tickets">Support Tickets</a></li>
+            <li><i class="bi bi-check-circle"></i><a href="/Admin/StudentVerification">Student Verify</a></li>
+        }
+
+    </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="modal-overlay">
+                <div class="admin-container">
+                    <div class="admin-header">
+                        <div class="header-content">
+                            <h1><i class="bi bi-graph-up"></i> Analytics Dashboard</h1>
+                            <p>Track product views and conversion rates</p>
+                        </div>
+                    </div>
+
+                    <!-- KPI Cards -->
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="kpi-card">
+                                <div class="kpi-label"><i class="bi bi-eye"></i> Total Views</div>
+                                <div class="kpi-value" style="color: #7C3AED;">@ViewBag.TotalViews</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="kpi-card">
+                                <div class="kpi-label"><i class="bi bi-bag-check"></i> Total Conversions</div>
+                                <div class="kpi-value" style="color: #22c55e;">@ViewBag.TotalConversions</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="kpi-card">
+                                <div class="kpi-label"><i class="bi bi-percent"></i> Avg Conversion Rate</div>
+                                <div class="kpi-value" style="color: #f59e0b;">@ViewBag.AverageConversionRate%</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="kpi-card">
+                                <div class="kpi-label"><i class="bi bi-boxes"></i> Total Products</div>
+                                <div class="kpi-value" style="color: #ec4899;">@ViewBag.TotalProducts</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Search & Sort -->
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Search product name..." style="flex: 2;">
+                        <select id="sortSelect" style="flex: 1;">
+                            <option value="">Sort by...</option>
+                            <option value="views-desc">Views (High to Low)</option>
+                            <option value="views-asc">Views (Low to High)</option>
+                            <option value="rate-desc">Rate (High to Low)</option>
+                        </select>
+                    </div>
+
+                    <!-- Analytics Table -->
+                    <div class="products-table-container">
+                        <table class="products-table" id="analyticsTable">
+                            <thead>
+                                <tr>
+                                    <th>Product Name</th>
+                                    <th style="text-align: center;">Views</th>
+                                    <th style="text-align: center;">Conversions</th>
+                                    <th style="text-align: center;">Rate</th>
+                                    <th style="text-align: center;">Category</th>
+                                    
+                                </tr>
+                            </thead>
+                            <tbody id="analyticsBody">
+                                @foreach (var item in Model)
+                                {
+                                    var rateColor = item.ConversionRate >= 5 ? "#22c55e" : item.ConversionRate >= 2 ? "#f59e0b" : "#ff6b6b";
+                                    <tr class="analytics-row" data-name="@(item.ProductName?.ToLower() ?? "")" data-views="@item.ViewCount" data-rate="@item.ConversionRate">
+                                        <td>
+                                            <strong>@item.ProductName</strong>
+                                        </td>
+                                        <td style="text-align: center; color: #7C3AED;">@item.ViewCount</td>
+                                        <td style="text-align: center; color: #22c55e;">@item.Conversions</td>
+                                        <td style="text-align: center;">
+                                            <span class="rate-badge" style="background: rgba(124, 58, 237, 0.1); color: @rateColor;">
+                                                @item.ConversionRate%
+                                            </span>
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <span class="role-badge">@(item.Category ?? "-")</span>
+                                        </td>
+                                       
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('keyup', function() {
+            let term = this.value.toLowerCase();
+            document.querySelectorAll('.analytics-row').forEach(row => {
+                row.style.display = row.dataset.name.includes(term) ? '' : 'none';
+            });
+        });
+
+        // Sort functionality
+        document.getElementById('sortSelect').addEventListener('change', function() {
+            const val = this.value;
+            const tbody = document.getElementById('analyticsBody');
+            const rows = Array.from(tbody.querySelectorAll('.analytics-row'));
+
+            rows.sort((a, b) => {
+                if (val === 'views-desc') return parseInt(b.dataset.views) - parseInt(a.dataset.views);
+                if (val === 'views-asc') return parseInt(a.dataset.views) - parseInt(b.dataset.views);
+                if (val === 'rate-desc') return parseFloat(b.dataset.rate) - parseFloat(a.dataset.rate);
+                return 0;
+            });
+
+            rows.forEach(row => tbody.appendChild(row));
+        });
+    </script>
+</body>
+</html>

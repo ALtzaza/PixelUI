@@ -1,0 +1,413 @@
+﻿@model IEnumerable<PixelUI.Models.Db.Product>
+
+@{
+    ViewData["Title"] = "Home Page";
+    Layout = "~/Views/Shared/_Layout.cshtml"; // กลับไปใช้ Layout หลักที่มี Navbar
+}
+
+<link rel="stylesheet" href="~/css/preview.css" />
+
+<style>
+    .stats-section {
+        display: flex;
+        justify-content: center;
+        gap: 80px;
+        text-align: center;
+        font-size: 16px;
+        color: var(--text-muted);
+        margin-top: 40px;
+    }
+
+    .stat-number {
+        font-size: 48px;
+        font-weight: 800;
+        color: white;
+    }
+
+    .stat-text {
+        margin-top: 8px;
+        line-height: 1.4;
+        font-size: 20px;
+        font-weight: 600;
+        color: white;
+    }
+
+    .trust-bar {
+        padding: 80px 20px;
+        /* เพิ่มพื้นที่หายใจ */
+        text-align: center;
+        background: transparent;
+        /* ลบพื้นหลังออก */
+        border: none;
+        /* ลบเส้นขอบออก */
+    }
+
+    .trust-label {
+        font-size: 14px;
+        letter-spacing: 3px;
+        color: #666;
+        margin-bottom: 40px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .trust-logos {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 100px;
+        /* ปรับสีให้ดูซอฟต์ลง ไม่สว่างจ้าเกินไป */
+        filter: brightness(0.7);
+        transition: filter 0.3s;
+        flex-wrap: wrap;
+    }
+
+    .trust-logos:hover {
+        filter: brightness(1);
+        /* สว่างขึ้นเมื่อเอาเมาส์วาง */
+    }
+
+    .tech-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .tech-item img {
+        height: 56px;
+        width: auto;
+        filter: grayscale(100%);
+        transition: filter 0.3s, transform 0.3s;
+    }
+
+    .tech-item:hover img {
+        filter: grayscale(0%);
+        transform: translateY(-8px) scale(1.1);
+    }
+
+    .tech-item span {
+        font-size: 14px;
+        color: #888;
+        font-weight: 600;
+    }
+
+    .section-title {
+    font-size: 2rem;
+    font-weight: 800;
+    margin: 80px 0 50px;
+    background-color: #ffffff;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.bundle-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 24px;
+    margin-bottom: 50px;
+}
+
+.bundle-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 24px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+.bundle-card:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(124, 58, 237, 0.5);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.promo-badge {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 99px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);
+}
+
+.bundle-items-preview {
+    display: flex;
+    gap: 10px;
+    margin: 20px 0;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 5px;
+}
+
+.mini-product-item {
+    min-width: 90px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 10px;
+    text-align: center;
+    transition: 0.2s;
+}
+
+.btn-view-bundle {
+    background: #7c3aed;
+    color: white !important;
+    border-radius: 12px;
+    padding: 10px 15px;
+    font-weight: 600;
+    text-align: center;
+    transition: 0.3s;
+    border: none;
+    width: 100%;
+}
+
+.btn-view-bundle:hover {
+    background: #8b5cf6;
+    box-shadow: 0 0 20px rgba(124, 58, 237, 0.4);
+}
+
+.bundle-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 15px 0;
+}
+
+.bundle-item-row {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 10px 14px;
+    text-decoration: none !important;
+    transition: all 0.2s ease;
+}
+
+.item-dot {
+    width: 6px;
+    height: 6px;
+    background: #7c3aed;
+    border-radius: 50%;
+    margin-right: 12px;
+    box-shadow: 0 0 8px rgba(124, 58, 237, 0.6);
+}
+
+.item-info-text {
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.item-name-sm {
+    display: block;
+    color: #efeff1;
+    font-size: 0.9rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.item-author-sm {
+    display: block;
+    color: #71717a;
+    font-size: 0.75rem;
+}
+
+.bundle-desc {
+    color: #aaa;
+    font-size: 0.9rem;
+
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+
+</style>
+
+@* --- Hero Section: เน้นความโปร่งและทันสมัย --- *@
+<div class="hero-section">
+    <div class="hero-content">
+        <h1 class="hero-title">Build Faster with <br><span class="text-gradient">Ready-to-Use</span> UI Components</h1>
+        <p class="hero-subtitle">
+            Large Market library of animations and elements. <br>
+            Copy-paste HTML/CSS for your next project.
+        </p>
+    </div>
+</div>
+
+<div class="trust-bar">
+    <p class="trust-label">READY FOR YOUR FAVORITE STACK</p>
+    <div class="trust-logos">
+        <div class="tech-item">
+            <img src="~/images/React.svg" alt="React">
+            <span>React</span>
+        </div>
+        <div class="tech-item">
+            <img src="~/images/Vue.js.svg" alt="Vue">
+            <span>Vue</span>
+        </div>
+        <div class="tech-item">
+            <img src="~/images/Svelte.svg" alt="Svelte">
+            <span>Svelte</span>
+        </div>
+        <div class="tech-item">
+            <img src="~/images/lit-1.svg" alt="Lit">
+            <span>Lit</span>
+        </div>
+        <div class="tech-item">
+            <img src="~/images/HTML5.svg" alt="HTML5">
+            <span>HTML5</span>
+        </div>
+    </div>
+</div>
+
+<div class="stats-section">
+    
+    <div class="stat-box">
+        
+        <i class="bi bi-columns-gap"
+           style="font-size: 48px;  border-radius: 50%; padding: 10px; margin-top: 20px; "></i>
+        <h2 class="stat-number">@ViewBag.productCount.ToString("N0")</h2>
+        <p class="stat-text">Community-made UI<br>elements</p>
+    </div>
+
+
+    <div class="stat-box">
+        <i class="bi bi-people" style="font-size: 48px;  border-radius: 50%; padding: 10px; margin-top: 20px;"></i>
+        <h2 class="stat-number">@ViewBag.totalUsers.ToString("N0")</h2>
+        <p class="stat-text">Contributors to the<br>community</p>
+    </div>
+
+</div>
+<div class="main-content-container">
+
+    @if (ViewBag.BundlePromotions != null && ((IEnumerable<object>)ViewBag.BundlePromotions).Any())
+    {
+        <h2 class="section-title">Bundle Deals</h2>
+        <div class="bundle-grid" style="display:flex; gap:90px; flex-wrap:wrap; margin-bottom:90px; justify-content:center;">
+            @foreach (var bp in (IEnumerable<dynamic>)ViewBag.BundlePromotions)
+            {
+                var promo = bp.Promo as PixelUI.Models.Db.Promotion;
+                var prods = bp.Products as List<PixelUI.Models.Db.Product> ?? new List<PixelUI.Models.Db.Product>();
+                <div class="bundle-card" style="background:#0b0b0c; border:1px solid #221a2b; border-radius:10px; padding:12px; width:320px;">
+                   <div style="display:flex; justify-content:space-between; align-items:center;">
+    
+    <div class="bundle-header-left">
+        <strong style="font-size:1.05rem;">@promo.PromoCode</strong>
+        <div class="bundle-desc">@promo.Description</div>
+    </div>
+
+    <div style="text-align:right;">
+        <div style="color:#10b981; font-weight:700;">
+            @((promo.DiscountPct ?? 0) + "% off")
+        </div>
+        <small style="color:#888;">Bundle</small>
+    </div>
+
+</div>
+                    <hr style="border-color:#222; margin:10px 0;" />
+                    <div class="bundle-items-list">
+    @foreach (var p in prods.Take(3)) // แสดง 3 ชิ้นแรก
+    {
+        <a asp-controller="Product" asp-action="Detail" asp-route-id="@p.ProductId" class="bundle-item-row">
+            <div class="item-dot"></div>
+            <div class="item-info-text">
+                <span class="item-name-sm">@p.ProductName</span>
+                <span class="item-author-sm">by @(p.Author ?? "Unknown")</span>
+            </div>
+            <i class="bi bi-chevron-right" style="font-size: 0.8rem; color: #444;"></i>
+        </a>
+    }
+    @if (prods.Count > 3)
+    {
+        <div style="text-align: center; font-size: 0.75rem; color: #555; margin-top: 4px;">
+            + @(prods.Count - 3) more items in this bundle
+        </div>
+    }
+</div>
+                    <div style="margin-top:10px; display:flex; gap:8px; justify-content:space-between; align-items:center;">
+                        <a asp-controller="Home" asp-action="Bundle" asp-route-id="@promo.PromotionId" class="btn btn-dev btn-sm">View Bundle / Buy Bundle</a>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+
+    <h2 class="section-title">Best Seller</h2>
+
+    <div class="component-grid">
+        @foreach (var item in Model)
+        {
+            <div class="component-card">
+                <div class="component-display">
+                    @if (!string.IsNullOrEmpty(item.HtmlCode))
+                    {
+                        var scopedHtml = $@"
+                            <html>
+                            <head>
+                                <style>
+                                    body {{ 
+                                        margin: 0; display: flex; justify-content: center; 
+                                        align-items: center; height: 100vh; background: transparent; 
+                                        overflow: hidden; 
+                                    }}
+                                    {item.CssCode}
+                                </style>
+                            </head>
+                            <body>
+                                {item.HtmlCode}
+                            </body>
+                            </html>";
+
+                        <iframe srcdoc="@scopedHtml"
+                                style="width: 100%; height: 100%; border: none; pointer-events: none; background: transparent;">
+                        </iframe>
+                    }
+                    else
+                    {
+                        <div class="no-preview-text">@item.ProductName (No Preview)</div>
+                    }
+
+                    <a asp-controller="Product" asp-action="Detail" asp-route-id="@item.ProductId" class="get-code-btn">
+                        <span>&lt;/&gt; Get code</span>
+                    </a>
+                </div>
+
+                <div class="component-footer">
+                    <span class="component-name">@item.ProductName</span>
+                    <div class="component-meta">By @(item.Author ?? "Artist_Name")</div>
+                    <div class="component-views"
+                         style="margin-top: 8px; font-size: 0.85rem; color: #888; display: flex; align-items: center; gap: 6px;">
+                        <i class="bi bi-eye"></i>
+                        <span>@(item.ViewCount > 0 ? (item.ViewCount > 999 ? $"{item.ViewCount / 1000}K" :
+                                                    item.ViewCount.ToString()) : "0") views</span>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="pagination-section">
+            @* ลิงก์ไปยัง Action Browse ใน ProductController *@
+            <a asp-controller="Product" asp-action="Browse" class="Button_blue text-decoration-none">
+                <i class="bi bi-rocket-takeoff"></i> Browse all elements
+            </a>
+        </div>
+    </div>
+
+    
+
+
+
+

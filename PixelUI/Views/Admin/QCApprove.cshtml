@@ -1,0 +1,340 @@
+@model IEnumerable<PixelUI.Models.Db.Product>
+
+@{
+    ViewData["Title"] = "QC & Approve Products";
+    Layout = null;
+    var role = Context.Session.GetString("UserRole");
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="~/css/create-product.css">
+    <link rel="stylesheet" href="~/css/manage-products.css">
+
+    <style>
+            body.modal-open {
+            overflow: hidden;
+            }
+            .btn-approve {
+                background-color: #10b981;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 14px;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                transition: 0.3s ease;
+            }
+
+            .btn-approve:hover {
+                background-color: #059669;
+            }
+
+            .btn-reject {
+                background-color: #ef4444;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 14px;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                transition: 0.3s ease;
+            }
+
+            .btn-reject:hover {
+                background-color: #dc2626;
+            }
+
+            .status-pending {
+                display: inline-block;
+                background-color: #f59e0b;
+                color: white;
+                padding: 4px 12px;
+                border-radius: 6px;
+                font-size: 12px;
+                font-weight: 600;
+            }
+
+            .view-product-link {
+                color: #7C3AED;
+                text-decoration: none;
+                cursor: pointer;
+            }
+
+            .view-product-link:hover {
+                text-decoration: underline;
+            }
+
+            .product-preview {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                display: none;
+                z-index: 9999;
+                padding: 20px;
+                overflow-y: auto;
+            }
+
+            .product-preview.active {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .preview-content {
+                background: #111;
+                border: 1px solid #333;
+                border-radius: 12px;
+                width: 90%;
+                max-width: 1000px;
+                padding: 30px;
+                position: relative;
+            }
+
+            .preview-close {
+                float: right;
+                cursor: pointer;
+                font-size: 24px;
+                color: #888;
+            }
+
+            .preview-close:hover {
+                color: #fff;
+            }
+    </style>
+</head>
+
+<body>
+
+    <div class="browse-page-wrapper">
+       <aside class="sidebar">
+            <a href="/" class="sidebar-brand">PixelUI<span class="Text_Admin">Admin</span></a>
+            <ul class="nav-menu">
+
+        @* SuperAdmin เท่านั้น *@
+        @if (role == "SuperAdmin")
+        {
+            <li><i class="bi bi-person"></i><a href="/Admin/Userlist">User Management</a></li>
+            <li><i class="bi bi-sliders"></i><a href="/Admin/ManageStaffRoles">Manage Roles</a></li>
+            <li><i class="bi bi-wallet2"></i><a href="/Admin/FinancialOverview">Financial Overview</a></li>
+        }
+
+        @* Product Manager + SuperAdmin *@
+        @if (role == "SuperAdmin" || role == "Product Manager")
+        {
+            <li><i class="bi bi-plus-circle"></i><a href="/Admin/CreateProduct">Add Product</a></li>
+            <li><i class="bi bi-boxes"></i><a href="/Admin/ManageProducts">Manage Products</a></li>
+            <li class="active"><i class="bi bi-check-circle"></i><a href="/Admin/QCApprove">QC & Approve</a></li>
+        }
+
+        @* Marketing + SuperAdmin *@
+        @if (role == "SuperAdmin" || role == "Marketing")
+        {
+            <li><i class="bi bi-graph-up"></i><a href="/Admin/Analytics">Analytics</a></li>
+            <li><i class="bi bi-tag"></i><a href="/Admin/ManagePromotions">Promotions</a></li>
+        }
+
+        @* Customer Support + SuperAdmin *@
+        @if (role == "SuperAdmin" || role == "Customer Support")
+        {
+            <li><i class="bi bi-ticket"></i><a href="/Admin/Tickets">Support Tickets</a></li>
+            <li><i class="bi bi-check-circle"></i><a href="/Admin/StudentVerification">Student Verify</a></li>
+        }
+
+    </ul>
+        </aside>
+
+                                <main class="main-content">
+                                    <div class="modal-overlay">
+                                        <div class="admin-container">
+                                            <div class="admin-header">
+                                                <div class="header-content">
+                                                    <h1><i class="bi bi-check-circle"></i> QC & Approve Products</h1>
+                                                    <p>Review and approve pending products before publishing</p>
+                                                </div>
+                                                <div style="font-size: 14px; color: #888;">
+                                                    <i class="bi bi-info-circle"></i> Pending Products: <strong>@Model.Count()</strong>
+                                                </div>
+                                            </div>
+
+                                            <div class="products-table-container">
+                                                @if (Model.Any())
+                                                {
+                                                    <table class="products-table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Product Name</th>
+                                                                <th>Category</th>
+                                                                <th>Tech Stack</th>
+                                                                <th>Price</th>
+                                                                <th>Author</th>
+                                                                <th>Status</th>
+                                                                <th>Actions</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach (var product in Model)
+                                                            {
+                                                                <tr>
+                                                                    <td>
+                                                                        <strong>@product.ProductName</strong>
+                                                                    </td>
+                                                                    <td>
+                                                                        <span class="category-badge">@(product.Category ?? "N/A")</span>
+                                                                    </td>
+                                                                    <td>@(product.TechStack ?? "N/A")</td>
+                                                                    <td>
+                                                                        @if (product.BasePrice == null || product.BasePrice == 0)
+                                                                        {
+                                                                            <span class="price-free">Free</span>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <span>@product.BasePrice?.ToString("$0.00")</span>
+                                                                        }
+                                                                    </td>
+                                                                    <td>@(product.Author ?? "Unknown")</td>
+                                                                    <td>
+                                                                        <span class="status-pending">
+                                                                            <i class="bi bi-clock"></i> Pending
+                                                                        </span>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="action-buttons" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                                                            <a href="@Url.Action("PreviewProduct", "Admin", new { id = product.ProductId })"
+                                                                                   class="btn-edit">
+                                                                                <i class="bi bi-eye"></i> Preview
+                                                                            </a>
+
+                                                                      
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                }
+                                                else
+                                                {
+                                                    <div style="text-align: center; padding: 40px; color: #888;">
+                                                        <i class="bi bi-inbox" style="font-size: 48px; margin-bottom: 20px; display: block;"></i>
+                                                        <p style="font-size: 18px; margin-bottom: 10px;">No pending products</p>
+                                                        <p style="font-size: 14px;">All products have been reviewed and approved.</p>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Product Preview Modal -->
+                                    <div id="previewModal" class="product-preview">
+                                        <div class="preview-content">
+                                            <span class="preview-close" onclick="closePreview()"
+                                                  style="position: absolute; top: 20px; right: 20px; cursor: pointer; font-size: 28px; color: #888; font-weight: bold;">&times;</span>
+                                            <h2 id="previewName" style="color: white; margin-top: 0; margin-bottom: 20px;"></h2>
+                                            <div id="previewContainer"
+                                                 style="border: 1px solid #333; border-radius: 8px; overflow: hidden; background: white;">
+                                                <iframe id="previewFrame" style="width: 100%; height: 600px; border: none;"></iframe>
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                </main>
+                            </div>
+
+                            <script>
+                                    // 1. ฟังก์ชันแสดง Preview
+                                    function showPreview(productName, htmlCode, cssCode) {
+                                         document.body.classList.add('modal-open');
+                                        console.log('showPreview called with:', productName);
+        
+                                        // Decode HTML entities
+                                        const textarea = document.createElement('textarea');
+                                        textarea.innerHTML = htmlCode || '';
+                                        const decodedHtml = textarea.value;
+
+                                        const textarea2 = document.createElement('textarea');
+                                        textarea2.innerHTML = cssCode || '';
+                                        const decodedCss = textarea2.value;
+
+                                        document.getElementById('previewName').textContent = productName;
+const frameContent = `
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+    * { box-sizing: border-box; }
+    body {
+        margin: 0;
+        padding: 20px;
+        min-height: 100vh;
+        overflow: auto;
+    }
+    ${decodedCss}
+</style>
+</head>
+<body>
+${decodedHtml}
+</body>
+</html>
+`;
+
+                                        const iframe = document.getElementById('previewFrame');
+                                        iframe.srcdoc = frameContent;
+
+                                        document.getElementById('previewModal').classList.add('active');
+                                    }
+
+                                    // 2. ฟังก์ชันปิด Preview
+                                    function closePreview() {
+                                        document.body.classList.remove('modal-open');
+                                        document.getElementById('previewModal').classList.remove('active');
+                                        document.getElementById('previewFrame').srcdoc = ''; // ล้างเนื้อหาออก
+                                    }
+
+                                    // 3. Event Delegation สำหรับปุ่ม Preview ในตาราง
+                                    document.addEventListener('click', function (e) {
+                                        const btn = e.target.closest('.preview-btn');
+                                        if (btn) {
+                                            const productName = btn.getAttribute('data-product-name');
+                                            const htmlCode = btn.getAttribute('data-html-code');
+                                            const cssCode = btn.getAttribute('data-css-code');
+                                            showPreview(productName, htmlCode, cssCode);
+                                        }
+                                    });
+
+                                    // 4. ปิดเมื่อคลิกนอกหน้าต่าง Content
+                                    document.getElementById('previewModal').addEventListener('click', function (e) {
+                                        if (e.target === this) {
+                                            closePreview();
+                                        }
+                                    });
+
+                                    // 5. ปิดด้วยปุ่ม Escape
+                                    document.addEventListener('keydown', function (e) {
+                                        if (e.key === 'Escape') {
+                                            closePreview();
+                                        }
+                                    });
+                            </script>
+
+                        </body>
+
+                    </html>

@@ -1,0 +1,132 @@
+@model PixelUI.Models.Db.StudentVerification
+
+@{
+    ViewData["Title"] = "Student Verification";
+    Layout = "_Layout";
+}
+
+<link rel="stylesheet" href="~/css/auth.css" />
+
+<style>
+    .custom-upload {
+    position: relative;
+}
+
+.custom-upload input[type="file"] {
+    display: none;
+}
+
+.upload-box {
+    width: 100%;
+    padding: 20px;
+    border: 2px dashed rgba(255,255,255,0.15);
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
+    background: rgba(26,26,26,0.6);
+    color: #aaa;
+    transition: all 0.3s ease;
+    display: block;
+}
+
+.upload-box i {
+    font-size: 24px;
+    display: block;
+    margin-bottom: 8px;
+    color: #7C3AED;
+}
+
+.upload-box:hover {
+    border-color: #7C3AED;
+    background: rgba(124, 58, 237, 0.08);
+    color: #fff;
+}
+
+.upload-box.dragover {
+    border-color: #7C3AED;
+    background: rgba(124, 58, 237, 0.15);
+}
+</style>
+
+<div class="auth-container">
+    
+    <!-- LEFT: FORM -->
+    <div class="auth-box">
+        <div class="auth-header">
+            <h1>Student Verification</h1>
+            <p>Verify your student status to unlock benefits</p>
+        </div>
+
+        <form asp-action="SubmitStudentVerification" method="post" enctype="multipart/form-data" class="auth-form">
+            @Html.AntiForgeryToken()
+
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="bi bi-card-text"></i> Student ID
+                </label>
+                <input type="text" name="StudentId" class="form-control" placeholder="Enter your student ID" required />
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="bi bi-building"></i> University
+                </label>
+                <input type="text" name="University" class="form-control" placeholder="Enter your university"
+                       required />
+            </div>
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="bi bi-image"></i> Upload Student Card
+                </label>
+
+                <div class="custom-upload">
+                    <label for="fileUpload" class="upload-box">
+                        <i class="bi bi-cloud-upload"></i>
+                        <span id="uploadText">Click to upload image</span>
+                    </label>
+                    <input type="file" id="fileUpload" name="file" accept="image/*" required />
+                </div>
+
+                <img id="previewImage" style="display:none; margin-top:10px; max-width:100%; border-radius:8px;" />
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-send"></i> Submit Verification
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <a href="@Url.Action("Profile", "User")">← Back to Profile</a>
+        </div>
+    </div>
+
+    <!-- RIGHT: INFO -->
+    <div class="auth-side">
+        <div class="auth-side-content">
+            <h2>Why Verify?</h2>
+            <p>Student verification gives you access to exclusive discounts and features.</p>
+            <ul>
+                <li><i class="bi bi-check-circle-fill"></i> Student-only pricing</li>
+                <li><i class="bi bi-check-circle-fill"></i> Exclusive bundles</li>
+                <li><i class="bi bi-check-circle-fill"></i> Priority support</li>
+            </ul>
+        </div>
+    </div>
+
+</div>
+
+<script>
+document.getElementById("fileUpload").addEventListener("change", function (e) {
+    const file = e.target.files[0];
+    const text = document.getElementById("uploadText");
+    const preview = document.getElementById("previewImage");
+
+    if (file) {
+        text.textContent = file.name;
+
+        if (file.type.startsWith("image/")) {
+            preview.src = URL.createObjectURL(file);
+            preview.style.display = "block";
+        }
+    }
+});
+</script>

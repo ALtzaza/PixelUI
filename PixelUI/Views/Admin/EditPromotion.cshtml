@@ -1,0 +1,482 @@
+@model PromotionViewModel
+
+@{
+    ViewData["Title"] = "Edit Promotion";
+    Layout = null;
+    var role = Context.Session.GetString("UserRole");
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    @* <link rel="stylesheet" href="~/css/create-product.css"> *@
+    <link rel="stylesheet" href="~/css/create-promotion.css">
+    <style>
+        .form-section {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+        .section-title {
+            color: #7C3AED;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .form-label {
+            color: #e0e0e0;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .form-control, .form-select {
+            background: #1a1a1c;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 10px 12px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+        .form-control:focus, .form-select:focus {
+            background: #1a1a1c;
+            border-color: #7C3AED;
+            color: #fff;
+            box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25);
+        }
+        .promotion-type-display {
+            background: rgba(124, 58, 237, 0.05);
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .type-icon {
+            font-size: 2rem;
+            color: #7C3AED;
+        }
+        .type-info {
+            flex: 1;
+        }
+        .type-label {
+            color: #a0a0a0;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+        .type-value {
+            color: #e0e0e0;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        .status-selector {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .status-option {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #333;
+            border-radius: 5px;
+            background: #1a1a1c;
+            color: #a0a0a0;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .status-option input[type="radio"] {
+            display: none;
+        }
+        .status-option input[type="radio"]:checked + label {
+            border-color: #7C3AED;
+            background: rgba(124, 58, 237, 0.2);
+            color: #7C3AED;
+        }
+        .bundle-selector {
+            background: rgba(124, 58, 237, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        .btn-primary {
+            background: #7C3AED;
+            border: none;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s ease;
+        }
+        .btn-primary:hover {
+            background: #6d28d9;
+            color: white;
+        }
+        .btn-secondary {
+            background: #333;
+            border: 1px solid #555;
+            color: #e0e0e0;
+            padding: 10px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .btn-secondary:hover {
+            background: #444;
+            color: white;
+        }
+        .info-box {
+            background: rgba(251, 191, 36, 0.1);
+            border-left: 3px solid #fbbf24;
+            padding: 12px;
+            border-radius: 5px;
+            color: #fbbf24;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="browse-page-wrapper">
+        <aside class="sidebar">
+            <a href="/" class="sidebar-brand">PixelUI<span class="Text_Admin">Admin</span></a>
+             <ul class="nav-menu">
+
+        @* SuperAdmin เท่านั้น *@
+        @if (role == "SuperAdmin")
+        {
+            <li><i class="bi bi-person"></i><a href="/Admin/Userlist">User Management</a></li>
+            <li><i class="bi bi-sliders"></i><a href="/Admin/ManageStaffRoles">Manage Roles</a></li>
+            <li><i class="bi bi-wallet2"></i><a href="/Admin/FinancialOverview">Financial Overview</a></li>
+        }
+
+        @* Product Manager + SuperAdmin *@
+        @if (role == "SuperAdmin" || role == "Product Manager")
+        {
+            <li><i class="bi bi-plus-circle"></i><a href="/Admin/CreateProduct">Add Product</a></li>
+            <li><i class="bi bi-boxes"></i><a href="/Admin/ManageProducts">Manage Products</a></li>
+            <li><i class="bi bi-check-circle"></i><a href="/Admin/QCApprove">QC & Approve</a></li>
+        }
+
+        @* Marketing + SuperAdmin *@
+        @if (role == "SuperAdmin" || role == "Marketing")
+        {
+            <li><i class="bi bi-graph-up"></i><a href="/Admin/Analytics">Analytics</a></li>
+            <li class="active"><i class="bi bi-tag"></i><a href="/Admin/ManagePromotions">Promotions</a></li>
+        }
+
+        @* Customer Support + SuperAdmin *@
+        @if (role == "SuperAdmin" || role == "Customer Support")
+        {
+            <li><i class="bi bi-ticket"></i><a href="/Admin/Tickets">Support Tickets</a></li>
+            <li><i class="bi bi-check-circle"></i><a href="/Admin/StudentVerification">Student Verify</a></li>
+        }
+
+    </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="modal-overlay">
+                <div class="admin-container">
+                    <div class="admin-header">
+                        <div class="header-content">
+                            <h1><i class="bi bi-tag"></i> Edit Promotion</h1>
+                            <p>Update promotion details</p>
+                        </div>
+                    </div>
+
+                    <form method="post" action="/Admin/EditPromotion/@Model.PromotionId">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="PromotionId" value="@Model.PromotionId" />
+
+                        <!-- Info Box -->
+                        <div class="info-box">
+                            <i class="bi bi-info-circle"></i> Promo Code and Type cannot be changed. Create a new promotion if needed.
+                        </div>
+
+                        <!-- Promotion Type Info -->
+                        <div class="form-section">
+                            <h3 class="section-title">
+                                <i class="bi bi-tag"></i> Promotion Details
+                            </h3>
+
+                            <div class="promotion-type-display">
+                                <i class="bi bi-@GetIconForType(Model.PromotionType) type-icon"></i>
+                                <div class="type-info">
+                                    <div class="type-label">Promotion Type</div>
+                                    <div class="type-value">@Model.PromotionType</div>
+                                    <small style="color: #a0a0a0;">@GetDescriptionForType(Model.PromotionType)</small>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">
+                                        <i class="bi bi-key"></i> Promo Code
+                                    </label>
+                                    <input type="text" class="form-control" value="@Model.PromoCode" disabled style="opacity: 0.6;" />
+                                    <small style="color: #a0a0a0;">Cannot be changed</small>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">
+                                        <i class="bi bi-percent"></i> Discount Percentage
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" name="DiscountPct" min="0" max="100"
+                                               value="@Model.DiscountPct" />
+                                        <span class="input-group-text" style="background: #1a1a1c; border: 1px solid #333; color: #a0a0a0;">%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Details Section -->
+                        <div class="form-section">
+                            <h3 class="section-title">
+                                <i class="bi bi-pencil"></i> Details
+                            </h3>
+
+                            <div class="row mb-3">
+                                <div class="col-md-12">
+                                    <label class="form-label">
+                                        <i class="bi bi-justify"></i> Description
+                                    </label>
+                                    <textarea class="form-control" name="Description" rows="2" style="resize: vertical;">@Model.Description</textarea>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-12">
+                                    <label class="form-label">
+                                        <i class="bi bi-info-circle"></i> Conditions
+                                    </label>
+                                    <select class="form-select" name="Conditions">
+                                        @if (string.IsNullOrEmpty(Model.Conditions))
+                                        {
+                                            <option value="" selected>Select condition...</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="">Select condition...</option>
+                                        }
+                                        @if (Model.Conditions == "New Customers Only")
+                                        {
+                                            <option value="New Customers Only" selected>New Customers Only</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="New Customers Only">New Customers Only</option>
+                                        }
+                                        @if (Model.Conditions == "Existing Customers Only")
+                                        {
+                                            <option value="Existing Customers Only" selected>Existing Customers Only</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="Existing Customers Only">Existing Customers Only</option>
+                                        }
+                                        @if (Model.Conditions == "Student Email (.edu/.ac.th) Only")
+                                        {
+                                            <option value="Student Email (.edu/.ac.th) Only" selected>Student Email (.edu/.ac.th) Only</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="Student Email (.edu/.ac.th) Only">Student Email (.edu/.ac.th) Only</option>
+                                        }
+                                        @if (Model.Conditions == "All Customers")
+                                        {
+                                            <option value="All Customers" selected>All Customers</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="All Customers">All Customers</option>
+                                        }
+                                        @if (Model.Conditions == "Limited Time Offer")
+                                        {
+                                            <option value="Limited Time Offer" selected>Limited Time Offer</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="Limited Time Offer">Limited Time Offer</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bundle Products (if applicable) -->
+                        @if (Model.PromotionType == "BundleDeal")
+                        {
+                            <div class="form-section">
+                                <h3 class="section-title">
+                                    <i class="bi bi-box-seam"></i> Bundle Products
+                                </h3>
+
+                                <label class="form-label">
+                                    <i class="bi bi-box"></i> Select Products to Bundle
+                                </label>
+                                <div style="background: #1a1a1c; border: 1px solid #333; border-radius: 5px; padding: 15px; max-height: 300px; overflow-y: auto;">
+                                    @if (Model.AvailableProducts?.Any() == true)
+                                    {
+                                        @foreach (var product in Model.AvailableProducts)
+                                        {
+                                            var isSelected = Model.SelectedProductIds?.Contains(product.ProductId) ?? false;
+                                            <div style="padding: 8px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                                                <label style="display: flex; align-items: center; gap: 10px; margin: 0; cursor: pointer;">
+                                                    @if (isSelected)
+                                                    {
+                                                        <input type="checkbox" name="SelectedProductIds" value="@product.ProductId" checked style="cursor: pointer;" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <input type="checkbox" name="SelectedProductIds" value="@product.ProductId" style="cursor: pointer;" />
+                                                    }
+                                                    <span>@product.ProductName</span>
+                                                    <span style="color: #a0a0a0; margin-left: auto;">฿@product.BasePrice</span>
+                                                </label>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Duration & Limits -->
+                        <div class="form-section">
+                            <h3 class="section-title">
+                                <i class="bi bi-calendar"></i> Duration & Limits
+                            </h3>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">
+                                        <i class="bi bi-calendar-event"></i> Start Date
+                                    </label>
+                                    <input type="date" class="form-control" name="StartDate"
+                                           value="@(Model.StartDate.HasValue ? Model.StartDate.Value.ToString("yyyy-MM-dd") : "")" />
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">
+                                        <i class="bi bi-calendar-x"></i> Expiry Date
+                                    </label>
+                                    <input type="date" class="form-control" name="ExpiryDate"
+                                           value="@(Model.ExpiryDate.HasValue ? Model.ExpiryDate.Value.ToString("yyyy-MM-dd") : "")" />
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">
+                                        <i class="bi bi-counter"></i> Max Usage Count
+                                    </label>
+                                    <input type="number" class="form-control" name="MaxUsageCount" min="1"
+                                           placeholder="Leave empty for unlimited" value="@Model.MaxUsageCount" />
+                                    <small style="color: #a0a0a0;">Maximum number of times this code can be used</small>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">
+                                        <i class="bi bi-lightbulb"></i> Status
+                                    </label>
+                                    <select class="form-select" name="Status">
+                                        @if (Model.Status == "Active")
+                                        {
+                                            <option value="Active" selected>Active</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="Active">Active</option>
+                                        }
+                                        @if (Model.Status == "Inactive")
+                                        {
+                                            <option value="Inactive" selected>Inactive</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="Inactive">Inactive</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="button-group">
+                            <button type="submit" class="btn-primary">
+                                <i class="bi bi-check-circle"></i> Save Changes
+                            </button>
+                            <a href="/Admin/ManagePromotions" class="btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        @Html.Raw(@"
+        function GetIconForType(type) {
+            switch(type) {
+                case 'StarterPack': return 'rocket';
+                case 'BundleDeal': return 'box-seam';
+                case 'Subscription': return 'calendar-check';
+                case 'StudentLicense': return 'mortarboard';
+                case 'UpdateGuarantee': return 'shield-check';
+                default: return 'tag';
+            }
+        }
+        ")
+    </script>
+</body>
+</html>
+
+@functions {
+    private string GetIconForType(string? type)
+    {
+        return type switch
+        {
+            "StarterPack" => "rocket",
+            "BundleDeal" => "box-seam",
+            "Subscription" => "calendar-check",
+            "StudentLicense" => "mortarboard",
+            "UpdateGuarantee" => "shield-check",
+            _ => "tag"
+        };
+    }
+
+    private string GetDescriptionForType(string? type)
+    {
+        return type switch
+        {
+            "StarterPack" => "New customers buying their first item receive 20% discount",
+            "BundleDeal" => "Purchase a bundle set at a 30% discount compared to individual items",
+            "Subscription" => "Annual membership offering (All Access) at special pricing",
+            "StudentLicense" => "Students and educational staff (with .edu/.ac.th email) receive 50% discount",
+            "UpdateGuarantee" => "Customers purchasing this month get lifetime free updates",
+            _ => "Special promotional offer"
+        };
+    }
+}

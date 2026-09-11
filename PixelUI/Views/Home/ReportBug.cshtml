@@ -1,0 +1,48 @@
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/report-bug.css" />
+
+<div class="row justify-content-center mt-4">
+    <div class="col-md-8">
+        <h2 class="mb-1">Report a Bug</h2>
+        <p class="text-secondary mt-1">Help us improve by reporting any issues or bugs you encounter.</p>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success">@TempData["Success"]</div>
+        }
+
+        @using (Html.BeginForm("ReportBug", "Home", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="mb-3 report-form-group">
+                <label class="form-label">Bug Description</label>
+                <textarea name="message" id="bugMessage" class="report-form-control report-textarea" placeholder="Please describe the bug you encountered, including steps to reproduce if possible" maxlength="500"></textarea>
+                <div class="d-flex justify-content-end mt-1">
+                    <small id="charCount" class="text-muted">0/500 characters</small>
+                </div>
+            </div>
+
+            <div class="mb-5">
+                <button type="submit" class="report-submit-btn">Submit Bug Report</button>
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+    (function(){
+        var ta = document.getElementById('bugMessage');
+        var count = document.getElementById('charCount');
+        if(!ta) return;
+        function update(){
+            var len = ta.value.length;
+            count.innerText = len + '/500 characters';
+        }
+        ta.addEventListener('input', update);
+        update();
+    })();
+</script>

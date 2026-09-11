@@ -1,0 +1,150 @@
+@model IEnumerable<PixelUI.Models.Db.Product>
+
+@{
+    ViewData["Title"] = "Manage Products";
+    Layout = null;
+    var role = Context.Session.GetString("UserRole");
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="~/css/create-product.css">
+    <link rel="stylesheet" href="~/css/manage-products.css">
+</head>
+
+<body>
+
+    <div class="browse-page-wrapper">
+   <aside class="sidebar">
+            <a href="/" class="sidebar-brand">PixelUI<span class="Text_Admin">Admin</span></a>
+                 <ul class="nav-menu">
+
+        @* SuperAdmin เท่านั้น *@
+        @if (role == "SuperAdmin")
+        {
+            <li><i class="bi bi-person"></i><a href="/Admin/Userlist">User Management</a></li>
+            <li><i class="bi bi-sliders"></i><a href="/Admin/ManageStaffRoles">Manage Roles</a></li>
+            <li><i class="bi bi-wallet2"></i><a href="/Admin/FinancialOverview">Financial Overview</a></li>
+        }
+
+        @* Product Manager + SuperAdmin *@
+        @if (role == "SuperAdmin" || role == "Product Manager")
+        {
+            <li><i class="bi bi-plus-circle"></i><a href="/Admin/CreateProduct">Add Product</a></li>
+            <li class="active"><i class="bi bi-boxes"></i><a href="/Admin/ManageProducts">Manage Products</a></li>
+            <li><i class="bi bi-check-circle"></i><a href="/Admin/QCApprove">QC & Approve</a></li>
+        }
+
+        @* Marketing + SuperAdmin *@
+        @if (role == "SuperAdmin" || role == "Marketing")
+        {
+            <li><i class="bi bi-graph-up"></i><a href="/Admin/Analytics">Analytics</a></li>
+            <li><i class="bi bi-tag"></i><a href="/Admin/ManagePromotions">Promotions</a></li>
+        }
+
+        @* Customer Support + SuperAdmin *@
+        @if (role == "SuperAdmin" || role == "Customer Support")
+        {
+            <li><i class="bi bi-ticket"></i><a href="/Admin/Tickets">Support Tickets</a></li>
+            <li><i class="bi bi-check-circle"></i><a href="/Admin/StudentVerification">Student Verify</a></li>
+        }
+
+    </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="modal-overlay">
+                <div class="admin-container">
+                    <div class="admin-header">
+                        <div class="header-content">
+                            <h1><i class="bi bi-boxes"></i> Manage Products</h1>
+                            <p>edit, and delete UI components</p>
+                        </div>
+                        <a href="/Admin/CreateProduct" class="btn-create-new">
+                            <i class="bi bi-plus-circle"></i> Add New Product
+                        </a>
+                    </div>
+
+                    <div class="products-table-container">
+                        <table class="products-table">
+                            <thead>
+                                <tr>
+                                    <th>Product Name</th>
+                                    <th>Category</th>
+                                    <th>Tech Stack</th>
+                                    <th>Price</th>
+                                    <th>Author</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Any())
+                                {
+                                    @foreach (var product in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <strong>@product.ProductName</strong>
+                                            </td>
+                                            <td>
+                                                <span class="category-badge">@(product.Category ?? "N/A")</span>
+                                            </td>
+                                            <td>@(product.TechStack ?? "N/A")</td>
+                                            <td>
+                                                @if (product.BasePrice == null || product.BasePrice == 0)
+                                                {
+                                                    <span class="price-free">Free</span>
+                                                }
+                                                else
+                                                {
+                                                    <span>@product.BasePrice?.ToString("$0.00")</span>
+                                                }
+                                            </td>
+                                            <td>@(product.Author ?? "Unknown")</td>
+                                            <td>
+                                                <div class="action-buttons">
+                                                    <a href="/Admin/EditProduct/@product.ProductId" class="btn-edit">
+                                                        <i class="bi bi-pencil"></i> Edit
+                                                    </a>
+                                                    <form method="post" action="/Admin/DeleteProduct/@product.ProductId" style="display: inline;">
+                                                        @Html.AntiForgeryToken()
+                                                        <button type="submit" class="btn-delete" onclick="return confirm('Delete this product?')">
+                                                            <i class="bi bi-trash"></i> Delete
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="6" style="text-align: center; padding: 30px; color: #888;">
+                                            No products found. <a href="/Admin/CreateProduct" style="color: #7C3AED; font-weight: 600;">Create one now</a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>

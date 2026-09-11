@@ -1,0 +1,290 @@
+@model PixelUI.Models.Db.Product
+
+@{
+    ViewData["Title"] = "Edit Product - " + Model.ProductName;
+    Layout = null;
+    var role = Context.Session.GetString("UserRole");
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="~/css/create-product.css">
+       <link rel="stylesheet" href="~/css/detail-page.css">
+</head>
+
+<body>
+
+    <div class="browse-page-wrapper">
+       <aside class="sidebar">
+            <a href="/" class="sidebar-brand">PixelUI<span class="Text_Admin">Admin</span></a>
+             <ul class="nav-menu">
+
+        @* SuperAdmin เท่านั้น *@
+        @if (role == "SuperAdmin")
+        {
+            <li><i class="bi bi-person"></i><a href="/Admin/Userlist">User Management</a></li>
+            <li><i class="bi bi-sliders"></i><a href="/Admin/ManageStaffRoles">Manage Roles</a></li>
+            <li><i class="bi bi-wallet2"></i><a href="/Admin/FinancialOverview">Financial Overview</a></li>
+        }
+
+        @* Product Manager + SuperAdmin *@
+        @if (role == "SuperAdmin" || role == "Product Manager")
+        {
+            <li><i class="bi bi-plus-circle"></i><a href="/Admin/CreateProduct">Add Product</a></li>
+            <li><i class="bi bi-boxes"></i><a href="/Admin/ManageProducts">Manage Products</a></li>
+            <li><i class="bi bi-check-circle"></i><a href="/Admin/QCApprove">QC & Approve</a></li>
+        }
+
+        @* Marketing + SuperAdmin *@
+        @if (role == "SuperAdmin" || role == "Marketing")
+        {
+            <li><i class="bi bi-graph-up"></i><a href="/Admin/Analytics">Analytics</a></li>
+            <li><i class="bi bi-tag"></i><a href="/Admin/ManagePromotions">Promotions</a></li>
+        }
+
+        @* Customer Support + SuperAdmin *@
+        @if (role == "SuperAdmin" || role == "Customer Support")
+        {
+            <li><i class="bi bi-ticket"></i><a href="/Admin/Tickets">Support Tickets</a></li>
+            <li><i class="bi bi-check-circle"></i><a href="/Admin/StudentVerification">Student Verify</a></li>
+        }
+
+    </ul>
+        </aside>
+                                <main class="main-content">
+                                    <form asp-controller="Admin" asp-action="EditProduct" method="post" id="productForm">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" asp-for="ProductId" />
+                                        <input type="hidden" asp-for="Category" />
+
+                                        <div class="product-detail-container">
+                                            <div class="top-nav">
+                                                <div class="d-flex align-items-center gap-3">
+                                                    <a href="/Admin/QCApprove" class="go-back-link">
+                                                        <i class="bi bi-arrow-left"></i> Back to QC
+                                                    </a>
+                                                    <span class="status-badge-pending">
+                                                        <i class="bi bi-clock-history"></i> Status: @(Model.Status ?? "Pending")
+                                                    </span>
+                                                </div>
+
+                                                <div class="d-flex gap-2">
+                                                    <button type="button" class="action-btn btn-approve-main" onclick="handleQC('Approve')">
+                                                        <i class="bi bi-check-lg"></i> Approve Component
+                                                    </button>
+        
+                                                    <button type="button" class="action-btn btn-reject-main" onclick="handleQC('Reject')">
+                                                        <i class="bi bi-x-lg"></i> Reject
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div class="product-info-card mb-4">
+                                                <div class="product-header">
+                                                    <div>
+                                                        <input asp-for="ProductName" class="product-name-input" placeholder="Component Name" />
+                                                        <div class="product-category-display">@Model.Category</div>
+                                                    </div>
+                                                    <div class="product-price">
+                                                        <span class="price-label">Price (USD)</span>
+                                                        <input asp-for="BasePrice" type="number" step="0.01" class="price-input" />
+                                                    </div>
+                                                </div>
+
+                                                <div class="product-specs">
+                                                    <div class="spec-item">
+                                                        <i class="bi bi-code-slash"></i>
+                                                        <div>
+                                                            <strong>Tech Stack</strong>
+                                                            <select asp-for="TechStack" class="spec-input">
+                                                                <option value="HTML & CSS">HTML & CSS</option>
+                                                                <option value="HTML & CSS & JavaScript">HTML & CSS & JavaScript</option>
+                                                                <option value="React">React</option>
+                                                                <option value="Tailwind CSS">Tailwind CSS</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="spec-item">
+                                                        <i class="bi bi-bar-chart"></i>
+                                                        <div>
+                                                            <strong>Complexity</strong>
+                                                            <input asp-for="ComplexityTier" type="range" min="1" max="5"
+                                                                   class="complexity-slider" id="complexitySlider" />
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="spec-item">
+                                                        <i class="bi bi-person-circle"></i>
+                                                        <div>
+                                                            <strong>Author</strong>
+                                                            <div class="spec-input-display"
+                                                                 style="padding: 8px 12px; font-weight: bold; color:white;">
+                                                                @Model.Author
+                                                            </div>
+                                                            <input type="hidden" asp-for="Author" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="workspace">
+                                                <div class="preview-side" id="previewContainer">
+                                                    <div class="preview-tools">
+                                                        <span class="color-code">Preview Mode</span>
+                                                    </div>
+                                                    <div id="preview-content" class="preview-content">
+                                                    </div>
+                                                </div>
+
+                                                <div class="code-side">
+                                                    <div class="code-tabs">
+                                                        <div class="btn-group">
+                                                            <button type="button" class="tab-btn active"
+                                                                    onclick="openTab(event, 'html-section')">
+                                                                <i class="bi bi-filetype-html text-danger"></i> HTML
+                                                            </button>
+                                                            <button type="button" class="tab-btn" onclick="openTab(event, 'css-section')">
+                                                                <i class="bi bi-filetype-css text-primary"></i> CSS
+                                                            </button>
+                                                        </div>
+                                                    </div>
+
+                                                    <div id="html-section" class="tab-content show">
+                                                        <textarea asp-for="HtmlCode" class="code-editor" id="htmlEditor"></textarea>
+                                                    </div>
+
+                                                    <div id="css-section" class="tab-content">
+                                                        <textarea asp-for="CssCode" class="code-editor" id="cssEditor"></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                       <!-- Product Description Section -->
+                                <!-- Description Edit Section -->
+                                <div class="product-description-edit mt-5">
+
+                                    <div class="desc-grid">
+
+                                        <!-- LEFT -->
+                                        <div class="desc-left">
+                                            <h3>Overview</h3>
+
+                                            <textarea asp-for="Description" class="form-control dark-input" rows="5"
+                                                      placeholder="Write product overview..."></textarea>
+
+                                            <h5 class="mt-4">What's Included</h5>
+
+                                            <textarea asp-for="IncludedItems" class="form-control dark-input" rows="5" placeholder="Example:
+                                            - Responsive Design
+                                            - Clean Code
+                                            - Easy to Customize"></textarea>
+                                        </div>
+
+                                        <!-- RIGHT -->
+                                        <div class="desc-right-card">
+                                            <h3>Highlights</h3>
+
+                                            <textarea asp-for="Highlights" class="form-control dark-input" rows="6" placeholder="Example:
+                                            - High Quality UI
+                                            - Ready to Use
+                                            - Lightweight"></textarea>
+
+                                            <div class="format-box mt-4">
+                                                <h5>Format</h5>
+                                                <input asp-for="Format" class="form-control dark-input"
+                                                       placeholder="HTML / CSS / React" />
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                                        </div>
+                                    </form>
+                                </main>
+                            </div>
+
+                            <style>
+   
+    .tab-content {
+    scrollbar-width: thin;
+    scrollbar-color: #333 #0d0d0d;
+}
+    .tab-content.show { display: block; }
+    
+    /* สไตล์ Badge และปุ่มตามที่คุยกันก่อนหน้า */
+    .status-badge-pending { background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); padding: 6px 14px; border-radius: 999px; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    .btn-approve-main { background: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; }
+    .btn-reject-main { background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); padding: 10px 20px; border-radius: 8px; font-weight: 600; }
+</style>
+
+                            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function () {
+                                const htmlEditor = document.getElementById('htmlEditor');
+                                const cssEditor = document.getElementById('cssEditor');
+
+                                // สั่งให้วาด Preview ทันทีที่โหลดหน้าเสร็จ
+                                updatePreview();
+
+                                // สั่งให้วาดใหม่ถ้ามีการพิมพ์แก้ไข Code
+                                htmlEditor.addEventListener('input', updatePreview);
+                                cssEditor.addEventListener('input', updatePreview);
+                                });
+
+                                function updatePreview() {
+                                const htmlCode = document.getElementById('htmlEditor').value;
+                                const cssCode = document.getElementById('cssEditor').value;
+                                const previewContainer = document.getElementById('preview-content');
+
+                                // เคลียร์ค่าเก่า
+                                previewContainer.innerHTML = '';
+
+                                // สร้าง Style element เพื่อฉีด CSS เข้าไป
+                                const style = document.createElement('style');
+                                style.textContent = cssCode;
+                                previewContainer.appendChild(style);
+
+                                // สร้าง Div เพื่อใส่ HTML
+                                const content = document.createElement('div');
+                                content.innerHTML = htmlCode;
+                                previewContainer.appendChild(content);
+                                }
+
+                                // ฟังก์ชันสลับ Tab HTML/CSS
+                                function openTab(evt, tabName) {
+                                evt.preventDefault();
+                                document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('show'));
+                                document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+                                document.getElementById(tabName).classList.add('show');
+                                evt.currentTarget.classList.add('active');
+                                }
+
+                                // ฟังก์ชันจัดการ QC (Approve/Reject)
+                                function handleQC(action) {
+                                const form = document.getElementById('productForm');
+                                const productId = '@Model.ProductId';
+        
+                                if (action === 'Approve') {
+                                if (confirm('ยืนยันการอนุมัติสินค้าชิ้นนี้ลงหน้าร้าน?')) {
+                                form.action = '/Admin/ApproveProduct/' + productId;
+                                form.submit();
+                                }
+                                } else if (action === 'Reject') {
+                                if (confirm('คุณต้องการปฏิเสธสินค้าชิ้นนี้ใช่หรือไม่?')) {
+                                form.action = '/Admin/RejectProduct/' + productId;
+                                form.submit();
+                                }
+                                }
+                                }
+                            </script>
+                        </body>
+
+                    </html>

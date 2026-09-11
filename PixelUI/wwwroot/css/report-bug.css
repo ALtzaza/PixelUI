@@ -1,0 +1,154 @@
+/* ============================= */
+/* REPORT BUG BUTTON */
+/* ============================= */
+.report-bug-btn {
+    background: rgba(124, 58, 237, 0.1);
+    border: 1px solid #7C3AED;
+    color: #c4b5fd;
+    padding: 6px 14px;
+    font-size: 12px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.report-bug-btn:hover {
+    background: rgba(124, 58, 237, 0.2);
+    color: #fff;
+    box-shadow: 0 0 12px rgba(124, 58, 237, 0.5);
+    transform: translateY(-1px);
+}
+
+
+/* ============================= */
+/* MODAL BASE */
+/* ============================= */
+.report-modal .modal-content {
+    background: #0d0d0d;
+    border: 1px solid #333;
+    border-radius: 14px;
+    color: #fff;
+}
+
+.report-modal .modal-header {
+    border-bottom: 1px solid #222;
+}
+
+.report-modal .modal-title {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.report-modal .modal-body {
+    padding: 20px;
+}
+
+.report-modal .modal-footer {
+    border-top: 1px solid #222;
+}
+
+
+/* ============================= */
+/* FORM STYLE */
+/* ============================= */
+.report-form-group {
+    margin-bottom: 15px;
+}
+
+.report-form-group label {
+    font-size: 12px;
+    color: #aaa;
+    margin-bottom: 6px;
+    display: block;
+}
+
+.report-form-control {
+    width: 100%;
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 13px;
+    color: #fff;
+    outline: none;
+    transition: all 0.25s ease;
+}
+
+.report-form-control:focus {
+    border-color: #7C3AED;
+    box-shadow: 0 0 8px rgba(124, 58, 237, 0.4);
+    background: #151515;
+}
+
+
+/* TEXTAREA */
+.report-textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+
+/* ============================= */
+/* SUBMIT BUTTON */
+/* ============================= */
+.report-submit-btn {
+    background: linear-gradient(135deg, #7C3AED, #5b21b6);
+    border: none;
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.report-submit-btn:hover {
+    background: linear-gradient(135deg, #8B5CF6, #6d28d9);
+    box-shadow: 0 0 15px rgba(124, 58, 237, 0.6);
+}
+
+
+/* ============================= */
+/* CANCEL BUTTON */
+/* ============================= */
+.report-cancel-btn {
+    background: #222;
+    border: 1px solid #444;
+    color: #aaa;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    transition: 0.3s;
+}
+
+.report-cancel-btn:hover {
+    color: #fff;
+    border-color: #777;
+    background: #2a2a2a;
+}
+
+
+/* ============================= */
+/* SMALL TOUCHES */
+/* ============================= */
+.report-modal input::placeholder,
+.report-modal textarea::placeholder {
+    color: #666;
+}
+
+/* scrollbar */
+.report-modal textarea::-webkit-scrollbar {
+    width: 5px;
+}
+
+.report-modal textarea::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 10px;
+}
+
+.report-modal textarea::-webkit-scrollbar-thumb:hover {
+    background: #7C3AED;
+}

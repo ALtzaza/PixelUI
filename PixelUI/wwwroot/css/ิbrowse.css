@@ -1,0 +1,130 @@
+/* ล้างค่าขอบที่อาจมาจาก _Layout */
+.browse-page-wrapper {
+    display: flex !important;
+    flex-direction: row !important;
+    width: 100vw !important;
+    position: absolute;
+    left: 0;
+    top: 0;
+    background-color: #000;
+}
+
+/* --- Sidebar Style --- */
+.sidebar {
+    width: 260px !important;
+    min-width: 260px !important;
+    background-color: #000;
+    border-right: 1px solid #1a1a1a;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+}
+
+.sidebar-header .logo {
+    font-size: 20px;
+    font-weight: 800;
+    padding-left: 20px;
+    color: #fff;
+}
+
+.nav-menu {
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 20px 0 !important;
+}
+
+.nav-menu li {
+    padding: 12px 20px;
+    margin: 4px 10px;
+    border-radius: 8px;
+    color: #888;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.nav-menu li.active, .nav-menu li:hover {
+    background-color: #111;
+    color: #fff;
+}
+
+/* --- Main Content Style --- */
+.main-content {
+    flex: 1 !important;
+    padding: 40px 60px;
+    background-color: #000;
+}
+
+.content-header .title {
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 5px;
+}
+
+.content-header .subtitle {
+    color: #666;
+    margin-bottom: 30px;
+}
+
+/* Filter Controls */
+.filter-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.search-bar {
+    background: #111;
+    border: 1px solid #222;
+    padding: 8px 15px;
+    border-radius: 8px;
+    width: 300px;
+    display: flex;
+    align-items: center;
+}
+
+.search-bar input {
+    background: transparent;
+    border: none;
+    color: #fff;
+    outline: none;
+    margin-left: 10px;
+    width: 100%;
+}
+
+/* Grid System */
+.ui-components-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+}
+
+.ui-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.ui-display {
+    aspect-ratio: 16/10;
+    background: #111;
+    border: 1px solid #222;
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+}
+
+.ui-info {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 5px;
+    font-size: 13px;
+}
+
+.author-box { display: flex; align-items: center; gap: 8px; }
+.avatar { 
+    background: #f1c40f; color: #000; width: 24px; height: 24px; 
+    border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: bold;
+}

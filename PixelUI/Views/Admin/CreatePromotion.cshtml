@@ -1,0 +1,268 @@
+@model PixelUI.ViewModels.PromotionViewModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Create Promotion";
+    Layout = null;
+    var role = Context.Session.GetString("UserRole");
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <link rel="stylesheet" href="~/css/create-promotion.css?v=@DateTime.Now.Ticks">
+</head>
+
+<body>
+    <div class="browse-page-wrapper">
+      <aside class="sidebar">
+            <a href="/" class="sidebar-brand">PixelUI<span class="Text_Admin">Admin</span></a>
+                        <ul class="nav-menu">
+
+        @* SuperAdmin เท่านั้น *@
+        @if (role == "SuperAdmin")
+        {
+            <li><i class="bi bi-person"></i><a href="/Admin/Userlist">User Management</a></li>
+            <li><i class="bi bi-sliders"></i><a href="/Admin/ManageStaffRoles">Manage Roles</a></li>
+            <li><i class="bi bi-wallet2"></i><a href="/Admin/FinancialOverview">Financial Overview</a></li>
+        }
+
+        @* Product Manager + SuperAdmin *@
+        @if (role == "SuperAdmin" || role == "Product Manager")
+        {
+            <li><i class="bi bi-plus-circle"></i><a href="/Admin/CreateProduct">Add Product</a></li>
+            <li><i class="bi bi-boxes"></i><a href="/Admin/ManageProducts">Manage Products</a></li>
+            <li><i class="bi bi-check-circle"></i><a href="/Admin/QCApprove">QC & Approve</a></li>
+        }
+
+        @* Marketing + SuperAdmin *@
+        @if (role == "SuperAdmin" || role == "Marketing")
+        {
+            <li><i class="bi bi-graph-up"></i><a href="/Admin/Analytics">Analytics</a></li>
+            <li class="active"><i class="bi bi-tag"></i><a href="/Admin/ManagePromotions">Promotions</a></li>
+        }
+
+        @* Customer Support + SuperAdmin *@
+        @if (role == "SuperAdmin" || role == "Customer Support")
+        {
+            <li><i class="bi bi-ticket"></i><a href="/Admin/Tickets">Support Tickets</a></li>
+            <li><i class="bi bi-check-circle"></i><a href="/Admin/StudentVerification">Student Verify</a></li>
+        }
+
+    </ul>
+        </aside>
+
+                                    <main class="main-content">
+                                        <div class="admin-container">
+                                            <div class="mb-4">
+                                                <h2 class="fw-bold text-white">Create New Promotion</h2>
+                                            </div>
+
+                                            <form asp-controller="Admin" asp-action="CreatePromotion" method="post">
+                                                @Html.AntiForgeryToken()
+
+                                                <div class="form-section">
+                                                    <h5 class="section-title"><i class="bi bi-grid"></i> 1. Promotion Type</h5>
+                                                    <div class="promotion-type-cards">
+                                                        @foreach (var type in new[] { "StarterPack", "BundleDeal", "MonthlyPromo", "StudentLicense" })
+                                                        {
+                                                            <label class="type-card @(Model.PromotionType == type ? "active" : "")">
+                                                                <input type="radio" name="PromotionType" value="@type" @(Model.PromotionType == type ?
+                                                                                                                                                                      "checked" : "") />
+                                                                <i class="bi bi-patch-check"></i>
+                                                                <strong>@type</strong>
+                                                            </label>
+                                                        }
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-section">
+                                                    <h5 class="section-title"><i class="bi bi-pencil-square"></i> 2. Details & Discount</h5>
+                                                    <div class="row g-4">
+                                                        <div class="col-12">
+                                                            <label class="form-label">Promotion Description (เขียนอธิบายโปรโมชั่นที่นี่)</label>
+                                                            <textarea asp-for="Description" class="form-control" rows="3"
+                                                                      placeholder="เช่น โปรโมชั่นต้อนรับลูกค้าใหม่ ลดทันทีเมื่อสั่งซื้อครั้งแรก..."></textarea>
+                                                        </div>
+                            
+                                                        <div class="col-md-6">
+                                                            <label class="form-label">Discount Percentage (กำหนดส่วนลด %)</label>
+                                                            <div class="input-group">
+                                                                <input asp-for="DiscountPct" type="number" class="form-control" placeholder="20" />
+                                                                <span class="input-group-text bg-dark border-secondary text-white">%</span>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-md-6" id="promoCodeField">
+                                                            <label class="form-label">Promo Code (ถ้ามี)</label>
+                                                            <input asp-for="PromoCode" class="form-control" placeholder="เช่น NEWUSER20" />
+                                                        </div>
+
+                                                        <div class="col-md-6">
+                                                            <label class="form-label">Max Usage Count (จำนวนการใช้งาน)</label>
+                                                            <div class="input-group">
+                                                                <input asp-for="MaxUsageCount" type="number" class="form-control" placeholder="999"
+                                                                       min="1" />
+                                                                <span class="input-group-text bg-dark border-secondary text-white"><i
+                                                                    class="bi bi-infinity"></i></span>
+                                                                </div>
+                                                                <small class="text-secondary">ปล่อยว่าง = ไม่มีจำกัด</small>
+                                                            </div>
+
+                                                            <div class="col-md-6">
+                                                                <label class="form-label">Valid From (เริ่มใช้ได้เมื่อ)</label>
+                                                                <input asp-for="StartDate" type="datetime-local" class="form-control" step="60"
+                                                                      value="@(Model.StartDate.HasValue ? Model.StartDate.Value.ToString("yyyy-MM-ddTHH:mm") : "")"/>
+                                                            </div>
+
+                                                            <div class="col-md-6">
+                                                                <label class="form-label">Expiry Date (หมดอายุเมื่อ)</label>
+                                                                <input asp-for="ExpiryDate" type="datetime-local" class="form-control" step="60" 
+                                                                value="@(Model.ExpiryDate.HasValue ? Model.ExpiryDate.Value.ToString("yyyy-MM-ddTHH:mm") : "")" />
+                                                            </div>
+
+                                                            <div class="col-md-6">
+                                                                <label class="form-label">Status</label>
+                                                                <select asp-for="Status" class="form-select">
+                                                                    <option value="Active">Active (ใช้งาน)</option>
+                                                                    <option value="Inactive">Inactive (ปิดใช้งาน)</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="form-section">
+                                                        <h5 class="section-title"><i class="bi bi-shield-lock"></i> 3. Conditions</h5>
+                                                        <label class="form-label">ใครที่สามารถใช้โปรโมชั่นนี้ได้?</label>
+                                                        <select asp-for="Conditions" class="form-select">
+                                                            <option value="All Customers">All Customers (ทุกคน)</option>
+                                                            <option value="New Customers Only">New Customers Only (เฉพาะลูกค้าใหม่)</option>
+                                                            <option value="Student Email (.edu/.ac.th) Only">Student Email Only (เฉพาะนักเรียน/นักศึกษา)
+                                                            </option>
+                                                        </select>
+                                                    </div>
+
+                                                    <!-- Bundle Products Selection (Show only for BundleDeal) -->
+                                                    <div class="form-section" id="bundleProductsSection" style="display: none;">
+                                                        <h5 class="section-title"><i class="bi bi-boxes"></i> 4. Select Bundle Products</h5>
+                                                        <p style="color: #a0a0a0; margin-bottom: 20px;">เลือกสินค้าที่จะรวมเป็น Bundle</p>
+                        
+                                                        @if (Model.AvailableProducts != null && Model.AvailableProducts.Count > 0)
+                                                        {
+                                                            <div class="products-card-grid">
+                                                                @foreach (var product in Model.AvailableProducts)
+                                                                {
+                                                                    <div class="product-card-item">
+                                                                        <input type="checkbox" id="product_@product.ProductId" name="SelectedProductIds"
+                                                                               value="@product.ProductId" @(Model.SelectedProductIds?.Contains(product.ProductId)
+                                                                                                                                                                                      == true ? "checked" : "") class="product-checkbox-hidden" />
+                                        
+                                                                        <label for="product_@product.ProductId" class="product-card-label">
+                                                                            <div class="product-image">
+                                                                                <i class="bi bi-box" style="font-size: 2rem; color: #7C3AED;"></i>
+                                                                            </div>
+                                            
+                                                                            <div class="product-info">
+                                                                                @if (!string.IsNullOrEmpty(product.Category) && product.Category !=
+                                                                                               "Uncategorized")
+                                                                                {
+                                                                                    <div class="product-category">@product.Category</div>
+                                                                                }
+                                                                                <div class="product-name">@product.ProductName</div>
+                                                                                <div class="product-price">@product.BasePrice?.ToString("C")</div>
+                                                                            </div>
+                                            
+                                                                            <div class="product-checkbox-marker">
+                                                                                <i class="bi bi-check-circle-fill"></i>
+                                                                            </div>
+                                                                        </label>
+                                                                    </div>
+                                                                }
+                                                            </div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <p style="color: #ef4444;">ไม่พบสินค้าในระบบ</p>
+                                                        }
+                                                    </div>
+
+                                                    <div class="d-flex gap-3">
+                                                        <button type="submit" class="btn btn-primary">Create Promotion</button>
+                                                        <a href="/Admin/ManagePromotions" class="btn btn-outline-secondary text-white">Cancel</a>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </main>
+                                    </div>
+
+                                    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                                    <script>
+                                        $(document).ready(function () {
+                                        // Handle promotion type card selection
+                                        $('.type-card').click(function () {
+                                        $('.type-card').removeClass('active');
+                                        $(this).addClass('active');
+                
+                                        // Get selected promotion type from radio button
+                                        var selectedType = $(this).find('input[type="radio"]').val();
+                
+                                        // Show bundle products section only for BundleDeal
+                                        if (selectedType === 'BundleDeal') {
+                                        $('#bundleProductsSection').slideDown(300);
+                                        } else {
+                                        $('#bundleProductsSection').slideUp(300);
+                                        }
+                                        });
+
+                                        // Also handle radio button change directly
+                                        $('input[name="PromotionType"]').change(function () {
+                                        if ($(this).val() === 'BundleDeal' && $(this).is(':checked')) {
+                                        $('#bundleProductsSection').slideDown(300);
+                                        } else if ($(this).val() !== 'BundleDeal' && $(this).is(':checked')) {
+                                        $('#bundleProductsSection').slideUp(300);
+                                        }
+                                        });
+
+                                        // Check if BundleDeal is already selected on page load
+                                        if ($('input[name="PromotionType"]:checked').val() === 'BundleDeal') {
+                                        $('#bundleProductsSection').show();
+                                        }
+
+                                        // Handle product card click for checkbox toggle
+                                        $('.product-card-label').click(function (e) {
+                                        e.preventDefault();
+                                        var checkbox = $(this).prev('.product-checkbox-hidden');
+                                        checkbox.prop('checked', !checkbox.prop('checked'));
+                                        });
+                                        });
+
+                                        function togglePromoCode() {
+    const type = $('input[name="PromotionType"]:checked').val();
+
+    if (type === 'BundleDeal') {
+        $('#promoCodeField').hide();
+    } else {
+        $('#promoCodeField').show();
+    }
+}
+
+$(document).ready(function () {
+
+    togglePromoCode(); // ตอนโหลด
+
+    $('input[name="PromotionType"]').change(function () {
+        togglePromoCode();
+    });
+
+});
+                                    </script>
+                                </body>
+
+                            </html>
